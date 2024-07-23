@@ -12,8 +12,8 @@ comments:
     theme: clean
 
 book:
-  title: "Make a Quarto book"
-  author: "Ben Letcher and Tim Lambert"
+  title: "Santo Domingo urban bird analysis book"
+  author: "Matthew Fuller"
   date: today
   chapters:
     - index.qmd
