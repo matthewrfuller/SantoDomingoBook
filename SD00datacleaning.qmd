@@ -1,5 +1,5 @@
 
-# Bird and i-Tree Data Cleaning  {.unnumbered}
+# Bird and i-Tree Data Cleaning
 
 Initial set up and R package loading.
 
