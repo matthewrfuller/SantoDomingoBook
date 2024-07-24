@@ -1,10 +1,7 @@
----
-title: "Bird and i-Tree Data Cleaning"
-format: html
-editor: visual
----
 
-Initial set up and R package loading.  
+# Bird and i-Tree Data Cleaning  {.unnumbered}
+
+Initial set up and R package loading.
 
 ```{r setup, message=FALSE, warning = FALSE}
 library(tidyverse)
@@ -22,12 +19,11 @@ knitr::opts_chunk$set(echo = TRUE)
 options(knitr.kable.NA = '')
 ```
 
+<br>
 
-<br>  
+## Bird data preparation
 
-# Bird data preparation  
-
-Site naming convention keys generated and resaved with appropriate cross walks.  
+Site naming convention keys generated and resaved with appropriate cross walks.
 
 ```{r}
 # read in site key and make additional corrections.
@@ -45,13 +41,13 @@ write_csv(birditree_sitejoin_key, file = "../data/iTree_Bird_site_key.csv")
 saveRDS(birditree_sitejoin_key, file = "../data/iTree_Bird_site_key.RDS")
 ```
 
-<br>  
+<br>
 
-## Site Visit data cleaning   
+### Site Visit data cleaning
 
-### Read in raw Site Visit data  
+#### Read in raw Site Visit data
 
-Read in bird site data from master excel file covering surveys from October 2016 through May 2023. Necessary adjustments for column names and data type (factor, numeric, etc.) were also addressed.  
+Read in bird site data from master excel file covering surveys from October 2016 through May 2023. Necessary adjustments for column names and data type (factor, numeric, etc.) were also addressed.
 
 ```{r message = FALSE, warning = FALSE}
 bird_dat_site <- 
@@ -92,17 +88,16 @@ bird_dat_site$SectorName <-
                       "Ciudad Nueva" = "New City", "San Carlos" = "San Carlos")
 ```
 
-### Site Visit data corrections  
+#### Site Visit data corrections
 
-#### Random entry error for noise index  
+##### Random entry error for noise index
 
 ```{r}
 # fix data entry mistake
 bird_dat_site$EnvNoise[bird_dat_site$EnvNoise == 2.2] <- 2
 ```
 
-#### SiteName and SiteID mismatched entry corrections  
-
+##### SiteName and SiteID mismatched entry corrections
 
 ```{r}
 # Fixing SiteName and SiteID matching issues
@@ -128,9 +123,7 @@ bird_dat_site$SiteName[bird_dat_site$SiteName == "Venta Flor Calle Benito" &
                          bird_dat_site$SiteID == "SC31"] <- "Zone Music Calle 30 de Marzo"
 ```
 
-
-#### Joining i-Tree plot ID fields to bird Site Data  
-
+##### Joining i-Tree plot ID fields to bird Site Data
 
 ```{r}
 # join key to match i-Tree plots with bird sites
@@ -139,9 +132,7 @@ bird_dat_site <- bird_dat_site |>
             by = "SiteID")
 ```
 
-
-#### Corrections made to Site Data dates  
-
+##### Corrections made to Site Data dates
 
 ```{r}
 # ErrorEntryPairing 2
@@ -269,13 +260,13 @@ bird_dat_site$Date[bird_dat_site$SiteID == "GA88" &
                      bird_dat_site$Date == date("2016-12-07")] <- date("2016-12-06")
 ```
 
-<br>  
+<br>
 
-## Point Count data cleaning  
+### Point Count data cleaning
 
-### Bird keys  
+#### Bird keys
 
-Read in the key for "Occurrence Status", "Foraging Guilds", and "four-letter Alpha species codes".  
+Read in the key for "Occurrence Status", "Foraging Guilds", and "four-letter Alpha species codes".
 
 ```{r message = FALSE}
 # Institute for Bird Populations 2023 official name list (birdpop.org)
@@ -294,62 +285,59 @@ key_bird_names <-
          OC_V = if_else(OccurenceStatus == "V", 1, 0) ) 
 ```
 
-
 ```{r}
 aplphacode_checks <- key_bird_names |>
   left_join(ibp_names, by = c("AlphaCode" = "IBP_AlphaCode")) |>
   select(AlphaCode, contains(c("Sci","Common")), -contains(c("Spanish")))
 ```
 
+#### Updates to bird name details by AlphaCode
 
-#### Updates to bird name details by AlphaCode  
+Updates were made to match the IBP 2023 list of approved 4-letter alpha codes for birds of North America.
 
-Updates were made to match the IBP 2023 list of approved 4-letter alpha codes for birds of North America.  
+<br>
 
-<br>  
+ANEU: Antillean Euphonia/Euphonia musica -\> no exact match in IBP. Possible match in: HIEU/Hispaniolan Euphonia/Chlorophonia musica
 
-ANEU: Antillean Euphonia/Euphonia musica -> no exact match in IBP. Possible match in: HIEU/Hispaniolan Euphonia/Chlorophonia musica
+ANMA: Antillean Mango/Anthracothorax dominicus -\> IBP data: HIMA/Hispaniolan Mango/Anthracothorax dominicus
 
-ANMA: Antillean Mango/Anthracothorax dominicus -> IBP data: HIMA/Hispaniolan Mango/Anthracothorax dominicus
+BFGR: Black-faced Grassquit/Tiaris bicolor -\> IBP has most current SciName: Melanospiza bicolor, Use IBP Scientific Name
 
-BFGR: Black-faced Grassquit/Tiaris bicolor -> IBP has most current SciName: Melanospiza bicolor, Use IBP Scientific Name
+BRBO: Anous stolidus/Sula leucogaster; Brown Noddy/Brown Booby -\> change AlphaCode to BRNO
 
-BRBO: Anous stolidus/Sula leucogaster; Brown Noddy/Brown Booby -> change AlphaCode to BRNO
+CACO: Fulica caribaea/Gymnogyps californianus; Caribbean Coot/California Condor -\> set to IBP Entry: AMCO/American Coot/Fulica americana, based on -\> (https://avibase.bsc-eoc.org/species.jsp?avibaseid=BB9C0A8BB9B447E5)
 
-CACO: Fulica caribaea/Gymnogyps californianus; Caribbean Coot/California Condor -> set to IBP Entry: AMCO/American Coot/Fulica americana, based on -> (https://avibase.bsc-eoc.org/species.jsp?avibaseid=BB9C0A8BB9B447E5) 
+COCK: Cockatiel/Nymphicus hollandicus -\> no matching entires in IBP2023; leave as is for now.
 
-COCK: Cockatiel/Nymphicus hollandicus -> no matching entires in IBP2023; leave as is for now.
+COGD: Common Ground-Dove/Columbina passerina -\> change to IBP: CGDO/Common Ground Dove/Columbina passerina
 
-COGD: Common Ground-Dove/Columbina passerina -> change to IBP: CGDO/Common Ground Dove/Columbina passerina
+GABU: Loxigilla violacea/Melopyrrha violacea; Greater Antillean Bullfinch/Greater Antillean Bullfinch -\> use IBP SciName
 
-GABU: Loxigilla violacea/Melopyrrha violacea; Greater Antillean Bullfinch/Greater Antillean Bullfinch -> use IBP SciName
+GANI: Greater Antillean Nightjar/Antrostomus cubanensis -\> maybe IBP entry: HINI/Hispaniolan Nightjar/Antrostomus ekmani
 
-GANI: Greater Antillean Nightjar/Antrostomus cubanensis -> maybe IBP entry: HINI/Hispaniolan Nightjar/Antrostomus ekmani
+HIEM: Chlorostilbon swainsonii/Riccordia swainsonii; Hispaniolan Emerald/Hispaniolan Emerald -\> update to IBP SciName
 
-HIEM: Chlorostilbon swainsonii/Riccordia swainsonii; Hispaniolan Emerald/Hispaniolan Emerald -> update to IBP SciName
+NOHO: Northern Harrier/Circus cyaneus -\> IBP Entry: NOHA/Northern Harrier/Circus hudsonius
 
-NOHO: Northern Harrier/Circus cyaneus -> IBP Entry: NOHA/Northern Harrier/Circus hudsonius
+PACR: Palm Crow/Corvus palmarum -\> IBP Entry: HIPC/Hispaniolan Palm-Crow/Corvus palmarum
 
-PACR: Palm Crow/Corvus palmarum -> IBP Entry: HIPC/Hispaniolan Palm-Crow/Corvus palmarum
+PIWA: Setophaga pinus chrysoleuca/Setophaga pinus; Pine Warbler/Pine Warbler -\> use IBP SciName
 
-PIWA: Setophaga pinus chrysoleuca/Setophaga pinus; Pine Warbler/Pine Warbler -> use IBP SciName
+PUGA: Porphyrio martinica/Porphyrio martinicus; Purple Gallinule/Purple Gallinule -\> use IBP SciName
 
-PUGA: Porphyrio martinica/Porphyrio martinicus; Purple Gallinule/Purple Gallinule -> use IBP SciName
+RBGB: Rose-breasted Grosbeak/Pheucticus ludovicianus -\> IBP Entry: RBGR/Rose-breasted Grosbeak/Pheucticus ludovicianus
 
-RBGB: Rose-breasted Grosbeak/Pheucticus ludovicianus -> IBP Entry: RBGR/Rose-breasted Grosbeak/Pheucticus ludovicianus
+RCKI: Regulus calendula/Corthylio calendula; Ruby-crowned Kinglet/Ruby-crowned Kinglet -\> use IBP SciName
 
-RCKI: Regulus calendula/Corthylio calendula; Ruby-crowned Kinglet/Ruby-crowned Kinglet -> use IBP SciName
+SCCO: Sulphur-crested Cockatoo/Lophornis brachylophus; Cacatua galerita/Short-crested Coquette -\> Set AlphaCode to SUCO
 
-SCCO: Sulphur-crested Cockatoo/Lophornis brachylophus; Cacatua galerita/Short-crested Coquette -> Set AlphaCode to SUCO
+WEWA: Helmitheros vermivorus/Helmitheros vermivorum; Worm-eating Warbler/Worm-eating Warbler -\> use IBP SciName
 
-WEWA: Helmitheros vermivorus/Helmitheros vermivorum; Worm-eating Warbler/Worm-eating Warbler -> use IBP SciName
+WILL: Tringa semipalmatus/Tringa semipalmata; Willet/Willet -\> Use IBP SciName
 
-WILL: Tringa semipalmatus/Tringa semipalmata; Willet/Willet -> Use IBP SciName
+<br>
 
-<br>  
-
-#### Corrections made to match IBP naming conventions for 2023  
-
+##### Corrections made to match IBP naming conventions for 2023
 
 ```{r}
 # corrections to key_bird_names based on IBP 2023 names list
@@ -401,8 +389,6 @@ key_bird_names$ScientificName[key_bird_names$AlphaCode == "WILL"] <- "Tringa sem
 
 ```
 
-
-
 ```{r}
 # Check again for issues after making corrections
 aplphacode_checks <- key_bird_names |>
@@ -412,20 +398,14 @@ aplphacode_checks <- key_bird_names |>
   select(AlphaCode, contains(c("Sci","Common")), -contains(c("Spanish")))
 ```
 
-
-
 ```{r}
 # save bird key names following corrections
 saveRDS(key_bird_names, file = "../data/bird/key_bird_names.RDS")
 ```
 
+#### Read in raw Point Count data
 
-
-
-### Read in raw Point Count data  
-
-Read in the data from the bird point counts in Santo Domingo and make necessary adjustments to data types (factor, numeric, etc.) and column names. Also join to site key to match i-Tree plots with their corresponding bird sites.  
-
+Read in the data from the bird point counts in Santo Domingo and make necessary adjustments to data types (factor, numeric, etc.) and column names. Also join to site key to match i-Tree plots with their corresponding bird sites.
 
 ```{r warning = FALSE}
 bird_dat_ptct <- 
@@ -456,12 +436,11 @@ bird_dat_ptct <-
   filter(!is.na(UID))
 ```
 
+#### Point Count data corrections
 
-### Point Count data corrections  
+##### SectorName, SectorID, SiteName, and SiteID corrections (by Sector)
 
-#### SectorName, SectorID, SiteName, and SiteID corrections (by Sector)  
-
-##### Ciudad Nueva  
+###### Ciudad Nueva
 
 ```{r CN corrections}
 # Ciudad Nueva SiteID/SiteName corrections
@@ -617,7 +596,7 @@ bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "CN33" &
                        bird_dat_ptct$Date == date("2017-04-04")] <- "La Lechonera Calle Pina"
 ```
 
-##### Gazcue  
+###### Gazcue
 
 ```{r GA corrections}
 # GAZCUE SiteID/SiteName corrections
@@ -699,7 +678,7 @@ bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA08" &
 
 ```
 
-##### San Carlos  
+###### San Carlos
 
 ```{r SC corrections}
 # SAN CARLOS SiteID/SiteName corrections
@@ -767,7 +746,7 @@ bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "SC35" &
   "Callejon Imbert (Jesus Arca)"
 ```
 
-##### Zona Colonial  
+###### Zona Colonial
 
 ```{r ZC corrections}
 # ZONA COLONIAL SiteID/SiteName corrections
@@ -931,10 +910,9 @@ bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA28" &
                        bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
 ```
 
+##### Date corrections
 
-#### Date corrections  
-
-Companion excel file used to link pairs of sites that did not have matching dates is named "sitevisit_sitedf_pointcountdf_join.xlsx" and provides notes on how each date entry error was identified and then fixed using the code below.  
+Companion excel file used to link pairs of sites that did not have matching dates is named "sitevisit_sitedf_pointcountdf_join.xlsx" and provides notes on how each date entry error was identified and then fixed using the code below.
 
 ```{r}
 # ErrorEntryPairing 1
@@ -999,8 +977,7 @@ bird_dat_ptct$Date[bird_dat_ptct$SiteID == "SC01" &
                      bird_dat_ptct$Date == date("2021-11-17")] <- date("2021-11-18")
 ```
 
-
-Remove and then rejoin the i-Tree plot details to this data set following the corrected dates and site IDs.  
+Remove and then rejoin the i-Tree plot details to this data set following the corrected dates and site IDs.
 
 ```{r}
 bird_dat_ptct <- bird_dat_ptct |>
@@ -1011,11 +988,9 @@ bird_dat_ptct <- bird_dat_ptct |>
             by = "SiteID")
 ```
 
+##### Bird alpha code and name corrections
 
-
-#### Bird alpha code and name corrections  
-
-Corrections to records with ambiguous 4-letter alpha codes. Fixes referenced with IBP 2023 lists for bird codes.  
+Corrections to records with ambiguous 4-letter alpha codes. Fixes referenced with IBP 2023 lists for bird codes.
 
 ```{r}
 bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "COCKATOO"] <- "SUCO"
@@ -1029,7 +1004,7 @@ bird_dat_ptct <- bird_dat_ptct |>
             by = c("SppAlphaCode"="AlphaCode"))
 ```
 
-Additional updates to the point count data with incorrect alpha codes that need to be updated to match 2023 IBP list conventions.  
+Additional updates to the point count data with incorrect alpha codes that need to be updated to match 2023 IBP list conventions.
 
 ```{r}
 # corrections to bird_dat_ptct based on IBP 2023 names list
@@ -1039,7 +1014,6 @@ bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "BRBO"] <- "BRNO"
 
 bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "COGD"] <- "CGDO"
 ```
-
 
 General field updates for point count data
 
@@ -1053,7 +1027,6 @@ season_fnx <- function(smpl_date) {
 }
 ```
 
-
 ```{r}
 bird_dat_ptct <- bird_dat_ptct |>
   as_tibble() |> lazy_dt() %>%
@@ -1063,13 +1036,13 @@ bird_dat_ptct <- bird_dat_ptct |>
 # summary(bird_dat_ptct$season)
 ```
 
-<br>  
+<br>
 
-## Merge Site Visit and Point Count data after corrections  
+### Merge Site Visit and Point Count data after corrections
 
-### Check to see if the corrections fixed mismatched dates  
+#### Check to see if the corrections fixed mismatched dates
 
-Condense the Site visit and point count data to a similar structure for comparison. 
+Condense the Site visit and point count data to a similar structure for comparison.
 
 ```{r}
 sitevisit_site_df <- bird_dat_site |>
@@ -1087,8 +1060,7 @@ sitevisit_ptct_df <- bird_dat_ptct |>
   arrange(SectorName, SiteID, Date)
 ```
 
-
-This join matches all site data (disturbance, noise, etc.) with each point count survey, but saves only those that are UNMATCHED to check if the corrections worked. There should be 30 rows in the `sitevisit_join_df` as these were the remaining entries that could not be matched/resolved.  
+This join matches all site data (disturbance, noise, etc.) with each point count survey, but saves only those that are UNMATCHED to check if the corrections worked. There should be 30 rows in the `sitevisit_join_df` as these were the remaining entries that could not be matched/resolved.
 
 ```{r}
 sitevisit_join_df <- sitevisit_ptct_df |>
@@ -1099,10 +1071,9 @@ write_csv(sitevisit_join_df,
           file = "../data/sitevisit_sitedf_pointcountdf_join.csv")
 ```
 
+#### Remove records that cannot be used
 
-### Remove records that cannot be used  
-
-We can now remove the site visit and point count data records that are unlinked with each corresponding data set before joining the two together into one final bird data set that be used in downstream analyses.  
+We can now remove the site visit and point count data records that are unlinked with each corresponding data set before joining the two together into one final bird data set that be used in downstream analyses.
 
 ```{r}
 # remove the unusable point count data records
@@ -1118,10 +1089,7 @@ sitevisit_join_df_site_removal <- sitevisit_join_df |>
   filter(is.na(source_site_df)) |> select(-source_site_df) 
 ```
 
-
-
-### Join site and point count data sets together  
-
+#### Join site and point count data sets together
 
 ```{r warning = FALSE}
 bird_dat_ptct_site_data_merge <- sitevisit_join_df_ptct_removal |>
@@ -1129,8 +1097,7 @@ bird_dat_ptct_site_data_merge <- sitevisit_join_df_ptct_removal |>
             by = c("SectorName", "SiteID", "Date"))
 ```
 
-### Save cleaned bird data  
-
+#### Save cleaned bird data
 
 ```{r }
 # save point count data for each subset of sites
@@ -1158,12 +1125,11 @@ write_csv(sitevisit_join_df_site_removal,
           file = "../data/bird/bird_sitevisit_data.csv")
 ```
 
-<br>  
+<br>
 
-## Bird abundance data assembly  
+### Bird abundance data assembly
 
-Abundance values taken based on the maximum number of individuals recorded from the three different timed surveys on a given date. Some point count surveys had multiple entries for an individual species within a single timed survey (e.g., distinct groups of individuals observed simultaneously on different substrates or at different distances). These distinct records were summed for a given species within each timed survey on a given date. The maximum of these timed survey sums for a species is the final "abundance" value used for a species on a given date at a site.  
-
+Abundance values taken based on the maximum number of individuals recorded from the three different timed surveys on a given date. Some point count surveys had multiple entries for an individual species within a single timed survey (e.g., distinct groups of individuals observed simultaneously on different substrates or at different distances). These distinct records were summed for a given species within each timed survey on a given date. The maximum of these timed survey sums for a species is the final "abundance" value used for a species on a given date at a site.
 
 ```{r}
 # point count abundance data includes all 71 sites WITH FO records
@@ -1181,7 +1147,6 @@ bird_ptct_abund_allsites_wFO <- bird_dat_ptct |>
   select(-abund_max) |>
   distinct() |> data.frame()
 ```
-
 
 ```{r}
 # point count abundance data includes all 71 sites WITHOUT FO records
@@ -1220,7 +1185,6 @@ bird_ptct_abund_itreesites_wFO <- sitevisit_join_df_ptct_removal |>
   distinct() |> data.frame()
 ```
 
-
 ```{r}
 # point count abundance data includes 60 paired i-Tree sites WITHOUT FO records
 bird_ptct_abund_itreesites_woFO <- sitevisit_join_df_ptct_removal |>
@@ -1241,7 +1205,7 @@ bird_ptct_abund_itreesites_woFO <- sitevisit_join_df_ptct_removal |>
   distinct() |> data.frame()
 ```
 
-Save all these abundance summaries separately for easy access in the future.  
+Save all these abundance summaries separately for easy access in the future.
 
 ```{r}
 # All 71 sites WITH Fly Overs
@@ -1260,13 +1224,11 @@ saveRDS(bird_ptct_abund_itreesites_woFO,
         file = "../data/RDS/bird_abundance_data_60itreesites_woFO.RDS")
 ```
 
+<br>
 
-<br>  
+## i-Tree data preparation
 
-# i-Tree data preparation  
-
-
-Gather lists of files exported from i-Tree ECO software that hold all the vegetation and plot data for each Sector in Santo Domingo.  
+Gather lists of files exported from i-Tree ECO software that hold all the vegetation and plot data for each Sector in Santo Domingo.
 
 ```{r}
 # Generate a list of files for each sector to read in.  
@@ -1280,10 +1242,9 @@ SC_files <- list.files(path = "../data/itree/san_carlos/",
                        recursive = TRUE, pattern = ".csv$", full.names = TRUE)
 ```
 
+### Plot-level data from i-Tree
 
-## Plot-level data from i-Tree  
-
-i-Tree plot data are read in and adjusted as necessary (currently just a coordinate update for site ZC11).  
+i-Tree plot data are read in and adjusted as necessary (currently just a coordinate update for site ZC11).
 
 ```{r message = FALSE}
 plot_data_df <- itree_sector_combine("_PLOTS.csv")
@@ -1298,11 +1259,9 @@ plot_data_df$`Longitude (X)`[plot_data_df$Address ==
                              plot_data_df$ID == 11] <- -69.884449  
 ```
 
+### Percent coverage of plots
 
-## Percent coverage of plots  
-
-Plot data exported from i-Tree were accompanied by summary statistics for percent coverage by trees or shrubs for each plot. Additionally, there was a field for percent coverage plantable in each plot. These values were provided as range values (e.g., 15-20%) so these categorical ranges were converted to a numerical percent value in the middle of the range for each category.  
-
+Plot data exported from i-Tree were accompanied by summary statistics for percent coverage by trees or shrubs for each plot. Additionally, there was a field for percent coverage plantable in each plot. These values were provided as range values (e.g., 15-20%) so these categorical ranges were converted to a numerical percent value in the middle of the range for each category.
 
 ```{r}
 # key table linking percent values to specific percent ranges
@@ -1329,7 +1288,7 @@ plotcov_df <- plot_data_df |>
   select(contains(c("itreeplot","perc")))
 ```
 
-Join the percent value data to the original plot data that include the factored range value entries. Also a little renaming of columns for easier manipulation in R.  
+Join the percent value data to the original plot data that include the factored range value entries. Also a little renaming of columns for easier manipulation in R.
 
 ```{r}
 # organize plot data for saving
@@ -1349,7 +1308,7 @@ plot_data_org <- plot_data_df |>
   left_join(plotcov_df, by = "itreeplotID")
 ```
 
-Save the plot data.  
+Save the plot data.
 
 ```{r}
 # save organized i-Tree plot data to file for joining with bird data
@@ -1357,12 +1316,9 @@ saveRDS(object = plot_data_org,
         file = "../data/itree/itree_plot_data_organized.RDS")
 ```
 
+### Trees data from i-Tree
 
-
-
-## Trees data from i-Tree  
-
-Using the local function `itree_sector_combine()` read in the tree data from each i-Tree plot and then remove uniform factors that can't be used to explain variation among i-Tree plots. For example, all "Tree Stress: Dieback" entires were "None" or "NA", so there's nothing in that variable to leverage as an explanatory variable.  
+Using the local function `itree_sector_combine()` read in the tree data from each i-Tree plot and then remove uniform factors that can't be used to explain variation among i-Tree plots. For example, all "Tree Stress: Dieback" entires were "None" or "NA", so there's nothing in that variable to leverage as an explanatory variable.
 
 ```{r message = FALSE}
 tree_dat_df <- itree_sector_combine("_TREES.csv")  |> 
@@ -1371,13 +1327,11 @@ tree_dat_df <- itree_sector_combine("_TREES.csv")  |>
                         "Tree Stress", "Primary P")))
 ```
 
-
-i-Tree tree species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the tree names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.  
+i-Tree tree species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the tree names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.
 
 ```{r message = FALSE}
 key_tree_names <- read_csv(file = "../data/itree/key_tree_names.csv")
 ```
-
 
 ```{r}
 tree_data_org <- tree_dat_df |> 
@@ -1438,24 +1392,19 @@ saveRDS(object = tree_data_org,
 
 ```
 
-
-
-## Shrubs data from i-Tree  
-
+### Shrubs data from i-Tree
 
 ```{r message = FALSE}
 # Reading in all the i-Tree data on shrubs from each plot.  
 shrub_dat_df <- itree_sector_combine("_SHRUBS.csv")
 ```
 
-i-Tree shrub species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the shrub names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.  
-
+i-Tree shrub species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the shrub names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.
 
 ```{r message=FALSE}
 # read in shrub naming key
 key_shrub_names <- read_csv(file = "../data/itree/key_shrub_names.csv")
 ```
-
 
 ```{r}
 # get shrub data organized for export
@@ -1473,17 +1422,15 @@ shrub_data_org <- shrub_dat_df |>
   mutate(itree_shrubID = paste0(itreeplotID,"_",ShrubNum))
 ```
 
-
 ```{r}
 # save organized i-Tree data to file for joining with bird data
 saveRDS(object = shrub_data_org, 
         file = "../data/itree/itree_shrub_data_organized.RDS")
 ```
 
+### i-Tree sector all benefits summary
 
-## i-Tree sector all benefits summary  
-
-Read in the benefits and costs summary, composite structure of individual trees summary, hydrology effects summary, and pollution removal summary data from i-Tree reports.  
+Read in the benefits and costs summary, composite structure of individual trees summary, hydrology effects summary, and pollution removal summary data from i-Tree reports.
 
 ```{r message=FALSE}
 bene_and_cost_df <- itree_sector_combine("_benefitcostsummary.csv") |>
@@ -1510,7 +1457,7 @@ pollution_df <- itree_sector_combine("_pollutionremoval.csv") |>
                                    "_",`Tree ID`))
 ```
 
-Join all benefits summary statistics together and update column names as needed.  
+Join all benefits summary statistics together and update column names as needed.
 
 ```{r}
 allitreebenefits_df <- bene_and_cost_df |>
@@ -1572,30 +1519,26 @@ allitreebenefits_df <- bene_and_cost_df |>
   select(SectorID, PlotNum, TreeNum, itreeplotID, itree_treeID, everything())
 ```
 
-
 ```{r}
 # save organized i-Tree data to file for joining with bird data
 saveRDS(object = allitreebenefits_df, 
         file = "../data/itree/itree_benefits_data_organized.RDS")
 ```
 
-<br>  
+<br>
 
-# Sourced functions written to read in i-Tree data  
+## Sourced functions written to read in i-Tree data
 
+Here is the code from the functions used to help easy reading in the i-Tree data exported from the i-Tree ECO software.
 
-Here is the code from the functions used to help easy reading in the i-Tree data exported from the i-Tree ECO software.  
-
-`itree_readcsv()` is used to read in the individual .csv files exported from each i-Tree ECO report file for a particular type of i-Tree data (e.g., benefits, hydrology, individual trees in plots, ...).  
+`itree_readcsv()` is used to read in the individual .csv files exported from each i-Tree ECO report file for a particular type of i-Tree data (e.g., benefits, hydrology, individual trees in plots, ...).
 
 ```{r}
 itree_readcsv
 ```
 
-
-`itree_sector_combine()` is used to combine the data read in for each sector into a single data frame that includes all sectors. The individual sector data frames come from the i-Tree ECO .csv exports that are imported to R via the `itree_readcsv()` function noted above.  
+`itree_sector_combine()` is used to combine the data read in for each sector into a single data frame that includes all sectors. The individual sector data frames come from the i-Tree ECO .csv exports that are imported to R via the `itree_readcsv()` function noted above.
 
 ```{r}
 itree_sector_combine
 ```
-
