@@ -1,0 +1,11 @@
+Plot ID,Tree ID,Species Name,DBH (in),Replacement Value ($),Carbon Storage (lb),Carbon Storage ($),Gross Carbon Sequestration (lb/yr),Gross Carbon Sequestration ($/yr),Avoided Runoff (gal/yr),Avoided Runoff ($/yr),Carbon Avoided (lb/yr),Carbon Avoided ($/yr),Pollution Removal (oz/yr),Pollution Removal ($/yr),Energy Savings ($/yr),Total Annual Benefits ($/yr)
+21,1,Spanish lime,27.9,"5,468.63","7,945.3",528.55,431.9,28.73,4.8,0.04,300.6,20.00,42.7,3.94,150.99,203.70
+21,2,French plantain,8.0,470.14,156.7,10.42,42.9,2.85,0.1,0.00,0.0,0.00,0.8,0.07,0.00,2.92
+22,1,Lemon,7.1,844.11,196.3,13.06,51.8,3.44,0.1,0.00,6.8,0.45,0.6,0.06,4.02,7.98
+24,1,Neem Tree,6.2,578.73,151.0,10.05,32.9,2.19,0.2,0.00,14.4,0.96,1.4,0.13,7.88,11.16
+26,1,Black olive,6.7,440.58,218.3,14.52,55.6,3.70,0.1,0.00,-2.9,-0.20,0.9,0.08,0.10,3.69
+29,1,Florida royal palm,14.9,"1,121.25",272.7,18.14,33.4,2.22,0.3,0.00,115.8,7.70,2.6,0.24,57.06,67.22
+29,2,Manila,5.5,469.81,43.6,2.90,7.5,0.50,0.0,0.00,0.8,0.05,0.3,0.03,0.50,1.09
+29,3,Manila,2.6,266.94,16.4,1.09,4.6,0.31,0.0,0.00,0.0,0.00,0.1,0.01,0.00,0.32
+29,4,Manila,3.1,143.24,20.7,1.38,2.2,0.15,0.0,0.00,0.0,0.00,0.1,0.01,0.00,0.16
+

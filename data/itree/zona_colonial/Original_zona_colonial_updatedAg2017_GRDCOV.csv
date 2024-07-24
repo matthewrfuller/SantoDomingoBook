@@ -1,0 +1,100 @@
+﻿"Plot","Ground Cover","% of Plot"
+1,Building,80
+1,Cement,10
+1,Tar,5
+1,"Bare soil",5
+2,Cement,5
+2,Tar,45
+2,Building,50
+3,Building,65
+3,Duff/mulch,5
+3,Cement,5
+3,Tar,15
+3,Herbs,5
+3,"Bare soil",5
+4,Building,100
+5,Building,80
+5,"Bare soil",2
+5,Cement,18
+6,Building,80
+6,Cement,20
+7,"Bare soil",13
+7,Herbs,5
+7,Building,60
+7,Cement,12
+7,Tar,10
+8,Tar,30
+8,Cement,10
+8,Building,60
+9,"Bare soil",10
+9,Cement,25
+9,Building,65
+10,Cement,10
+10,Building,60
+10,Tar,30
+11,Tar,40
+11,Building,30
+11,Cement,30
+12,Grass,30
+12,"Bare soil",5
+12,Cement,15
+12,Building,45
+12,Herbs,5
+13,Building,90
+13,Cement,10
+14,"Bare soil",5
+14,Cement,40
+14,Tar,20
+14,Grass,35
+15,Cement,9
+15,Herbs,1
+15,Building,90
+16,Building,90
+16,Cement,10
+17,Herbs,2
+17,Building,98
+18,Cement,10
+18,Tar,10
+18,Building,80
+19,Cement,8
+19,Building,92
+20,Herbs,20
+20,"Bare soil",5
+20,Building,75
+21,Tar,30
+21,Building,55
+21,Cement,7
+21,Herbs,8
+22,Building,61
+22,Herbs,9
+22,Cement,30
+23,Tar,40
+23,Cement,5
+23,Building,50
+23,Herbs,5
+24,Building,60
+24,Herbs,5
+24,Cement,35
+25,Duff/mulch,5
+25,Cement,15
+25,Building,50
+25,Tar,30
+26,Tar,25
+26,Cement,8
+26,Grass,67
+27,Herbs,1
+27,Tar,14
+27,Cement,5
+27,Building,80
+30,Building,50
+30,Cement,10
+30,Tar,40
+109,Rock,2
+109,Herbs,5
+109,Cement,17
+109,Building,5
+109,"Bare soil",1
+109,Tar,70
+136,Tar,25
+136,Building,65
+136,Cement,10

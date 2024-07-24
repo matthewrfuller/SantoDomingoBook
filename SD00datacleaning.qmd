@@ -11,8 +11,8 @@ library(dtplyr)
 library(ggrepel)
 
 
-source("../scripts/helperfnx/itree_readcsv.R")
-source("../scripts/helperfnx/itree_data_sector_combine.R")
+source("./scripts/helperfnx/itree_readcsv.R")
+source("./scripts/helperfnx/itree_data_sector_combine.R")
 
 
 knitr::opts_chunk$set(echo = TRUE)
@@ -27,7 +27,7 @@ Site naming convention keys generated and resaved with appropriate cross walks.
 
 ```{r}
 # read in site key and make additional corrections.
-birditree_sitejoin_key <- read.csv(file = "../data/iTree_Bird_site_key.csv") |>
+birditree_sitejoin_key <- read.csv(file = "./data/iTree_Bird_site_key.csv") |>
    mutate(itreeplotID = if_else(is.na(PlotNum),NA,
                                 paste0(SectorID, str_pad(PlotNum, width = 4,
                                                 side = 'left', pad = '0')) ) )
@@ -37,8 +37,8 @@ birditree_sitejoin_key$lat[birditree_sitejoin_key$SiteID == "ZC11"] <- 18.46920
 birditree_sitejoin_key$long[birditree_sitejoin_key$SiteID == "ZC11"] <- -69.88445
 
 # Save crosswalk keys for clean data directory and to read in for future analyses
-write_csv(birditree_sitejoin_key, file = "../data/iTree_Bird_site_key.csv")
-saveRDS(birditree_sitejoin_key, file = "../data/iTree_Bird_site_key.RDS")
+write_csv(birditree_sitejoin_key, file = "./data/iTree_Bird_site_key.csv")
+saveRDS(birditree_sitejoin_key, file = "./data/iTree_Bird_site_key.RDS")
 ```
 
 <br>
@@ -51,7 +51,7 @@ Read in bird site data from master excel file covering surveys from October 2016
 
 ```{r message = FALSE, warning = FALSE}
 bird_dat_site <- 
-  read_xlsx(path = "../data/bird/SD_URBANBIRDDATA202305.xlsx",
+  read_xlsx(path = "./data/bird/SD_URBANBIRDDATA202305.xlsx",
             sheet = "Site (point) Info", 
             col_types = c("numeric","text","text","text","text","date","numeric",
                           "numeric","numeric","numeric","numeric","numeric",
@@ -270,11 +270,11 @@ Read in the key for "Occurrence Status", "Foraging Guilds", and "four-letter Alp
 
 ```{r message = FALSE}
 # Institute for Bird Populations 2023 official name list (birdpop.org)
-ibp_names <- read_csv(file = "../data/bird/IBP-AOS-LIST23_reduced.csv")
+ibp_names <- read_csv(file = "./data/bird/IBP-AOS-LIST23_reduced.csv")
 
 # Wayne's AlphaCodes, Foraging Status, and Occurrence Status details
 key_bird_names <- 
-  read_csv(file = "../data/bird/Bird_OccurenceStatus_and_ForagingGuild_Key.csv",
+  read_csv(file = "./data/bird/Bird_OccurenceStatus_and_ForagingGuild_Key.csv",
            show_col_types = FALSE) |>
   mutate(OC_E = if_else(OccurenceStatus == "E", 1, 0),
          OC_I = if_else(OccurenceStatus == "I", 1, 0),
@@ -400,7 +400,7 @@ aplphacode_checks <- key_bird_names |>
 
 ```{r}
 # save bird key names following corrections
-saveRDS(key_bird_names, file = "../data/bird/key_bird_names.RDS")
+saveRDS(key_bird_names, file = "./data/bird/key_bird_names.RDS")
 ```
 
 #### Read in raw Point Count data
@@ -409,7 +409,7 @@ Read in the data from the bird point counts in Santo Domingo and make necessary 
 
 ```{r warning = FALSE}
 bird_dat_ptct <- 
-  read_xlsx(path = "../data/bird/SD_URBANBIRDDATA202305.xlsx",
+  read_xlsx(path = "./data/bird/SD_URBANBIRDDATA202305.xlsx",
             sheet = "RAW DATA", 
             col_types = c("numeric","text","text","text","text","date","date",
                           "date","text","numeric","numeric","text","numeric",
@@ -1068,7 +1068,7 @@ sitevisit_join_df <- sitevisit_ptct_df |>
   filter(is.na(source_site_df) | is.na(source_ptct_df) ) 
 
 write_csv(sitevisit_join_df, 
-          file = "../data/sitevisit_sitedf_pointcountdf_join.csv")
+          file = "./data/sitevisit_sitedf_pointcountdf_join.csv")
 ```
 
 #### Remove records that cannot be used
@@ -1102,27 +1102,27 @@ bird_dat_ptct_site_data_merge <- sitevisit_join_df_ptct_removal |>
 ```{r }
 # save point count data for each subset of sites
 # All 71 sites
-saveRDS(bird_dat_ptct, file="../data/RDS/bird_pointcount_data_71sites.RDS")
-write_csv(bird_dat_ptct, file="../data/bird/bird_pointcount_data_71sites.csv")
+saveRDS(bird_dat_ptct, file="./data/RDS/bird_pointcount_data_71sites.RDS")
+write_csv(bird_dat_ptct, file="./data/bird/bird_pointcount_data_71sites.csv")
 
 # All 69 sites that have paired site visit and point count data
 saveRDS(sitevisit_join_df_ptct_removal, 
-        file = "../data/RDS/bird_pointcount_data_69sites.RDS")
+        file = "./data/RDS/bird_pointcount_data_69sites.RDS")
 write_csv(sitevisit_join_df_ptct_removal, 
-          file = "../data/bird/bird_pointcount_data_69sites.csv")
+          file = "./data/bird/bird_pointcount_data_69sites.csv")
 
 # Subset of 60 sites that have paired i-Tree plots
 saveRDS(filter(sitevisit_join_df_ptct_removal, !is.na(PlotNum)), 
-        file = "../data/RDS/bird_pointcount_data_60itreesites.RDS")
+        file = "./data/RDS/bird_pointcount_data_60itreesites.RDS")
 write_csv(filter(sitevisit_join_df_ptct_removal, !is.na(PlotNum)), 
-          file = "../data/bird/bird_pointcount_data_60itreesites.csv")
+          file = "./data/bird/bird_pointcount_data_60itreesites.csv")
 
 
 # save site visit data (69 Sites total: missing 2 unknown sites in point counts)
 saveRDS(sitevisit_join_df_site_removal, 
-        file = "../data/RDS/bird_sitevisit_data.RDS")
+        file = "./data/RDS/bird_sitevisit_data.RDS")
 write_csv(sitevisit_join_df_site_removal, 
-          file = "../data/bird/bird_sitevisit_data.csv")
+          file = "./data/bird/bird_sitevisit_data.csv")
 ```
 
 <br>
@@ -1210,18 +1210,18 @@ Save all these abundance summaries separately for easy access in the future.
 ```{r}
 # All 71 sites WITH Fly Overs
 saveRDS(bird_ptct_abund_allsites_wFO, 
-        file = "../data/RDS/bird_abundace_data_all71sites_wFO.RDS")
+        file = "./data/RDS/bird_abundace_data_all71sites_wFO.RDS")
 # All 71 sites WITHOUT Fly Overs
 saveRDS(bird_ptct_abund_allsites_woFO, 
-        file = "../data/RDS/bird_abundace_data_all71sites_woFO.RDS")
+        file = "./data/RDS/bird_abundace_data_all71sites_woFO.RDS")
 
 
 # i-Tree paired sites only WITH Fly Overs
 saveRDS(bird_ptct_abund_itreesites_wFO, 
-        file = "../data/RDS/bird_abundance_data_60itreesites_wFO.RDS")
+        file = "./data/RDS/bird_abundance_data_60itreesites_wFO.RDS")
 # i-Tree paired sites only WITHOUT Fly Overs
 saveRDS(bird_ptct_abund_itreesites_woFO, 
-        file = "../data/RDS/bird_abundance_data_60itreesites_woFO.RDS")
+        file = "./data/RDS/bird_abundance_data_60itreesites_woFO.RDS")
 ```
 
 <br>
@@ -1232,13 +1232,13 @@ Gather lists of files exported from i-Tree ECO software that hold all the vegeta
 
 ```{r}
 # Generate a list of files for each sector to read in.  
-CN_files <- list.files(path = "../data/itree/ciudad_nueva/", 
+CN_files <- list.files(path = "./data/itree/ciudad_nueva/", 
                        recursive = TRUE, pattern = ".csv$", full.names = TRUE)
-ZC_files <- list.files(path = "../data/itree/zona_colonial/", 
+ZC_files <- list.files(path = "./data/itree/zona_colonial/", 
                        recursive = TRUE, pattern = ".csv$", full.names = TRUE)
-GA_files <- list.files(path = "../data/itree/gazcue/", 
+GA_files <- list.files(path = "./data/itree/gazcue/", 
                        recursive = TRUE, pattern = ".csv$", full.names = TRUE)
-SC_files <- list.files(path = "../data/itree/san_carlos/", 
+SC_files <- list.files(path = "./data/itree/san_carlos/", 
                        recursive = TRUE, pattern = ".csv$", full.names = TRUE)
 ```
 
@@ -1266,7 +1266,7 @@ Plot data exported from i-Tree were accompanied by summary statistics for percen
 ```{r}
 # key table linking percent values to specific percent ranges
 key_pctcoverage <- 
-  read_csv(file = "../data/itree/key_project_tree_percent_cover_key.csv", 
+  read_csv(file = "./data/itree/key_project_tree_percent_cover_key.csv", 
            col_types = "fd")
 
 # assigns percent values to percent ranges entered into i-Tree reports
@@ -1313,7 +1313,7 @@ Save the plot data.
 ```{r}
 # save organized i-Tree plot data to file for joining with bird data
 saveRDS(object = plot_data_org, 
-        file = "../data/itree/itree_plot_data_organized.RDS")
+        file = "./data/itree/itree_plot_data_organized.RDS")
 ```
 
 ### Trees data from i-Tree
@@ -1330,7 +1330,7 @@ tree_dat_df <- itree_sector_combine("_TREES.csv")  |>
 i-Tree tree species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the tree names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.
 
 ```{r message = FALSE}
-key_tree_names <- read_csv(file = "../data/itree/key_tree_names.csv")
+key_tree_names <- read_csv(file = "./data/itree/key_tree_names.csv")
 ```
 
 ```{r}
@@ -1388,7 +1388,7 @@ tree_data_org <- tree_dat_df |>
 
 # save organized i-Tree data to file for joining with bird data
 saveRDS(object = tree_data_org, 
-        file = "../data/itree/itree_tree_data_organized.RDS")
+        file = "./data/itree/itree_tree_data_organized.RDS")
 
 ```
 
@@ -1403,7 +1403,7 @@ i-Tree shrub species names were not entirely consistent (a mix of either common 
 
 ```{r message=FALSE}
 # read in shrub naming key
-key_shrub_names <- read_csv(file = "../data/itree/key_shrub_names.csv")
+key_shrub_names <- read_csv(file = "./data/itree/key_shrub_names.csv")
 ```
 
 ```{r}
@@ -1425,7 +1425,7 @@ shrub_data_org <- shrub_dat_df |>
 ```{r}
 # save organized i-Tree data to file for joining with bird data
 saveRDS(object = shrub_data_org, 
-        file = "../data/itree/itree_shrub_data_organized.RDS")
+        file = "./data/itree/itree_shrub_data_organized.RDS")
 ```
 
 ### i-Tree sector all benefits summary
@@ -1522,7 +1522,7 @@ allitreebenefits_df <- bene_and_cost_df |>
 ```{r}
 # save organized i-Tree data to file for joining with bird data
 saveRDS(object = allitreebenefits_df, 
-        file = "../data/itree/itree_benefits_data_organized.RDS")
+        file = "./data/itree/itree_benefits_data_organized.RDS")
 ```
 
 <br>

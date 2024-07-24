@@ -1,0 +1,263 @@
+season,detection_richness,SppAlphaCode,ScientificName,CommonNameEnglish
+breeding,43,AMKE,Falco sparverius,American Kestrel
+breeding,43,AMRE,Setophaga ruticilla,American Redstart
+breeding,43,ANPS,Tachornis phoenicobia,Antillean Palm-Swift
+breeding,43,BANA,Coereba flaveola,Bananaquit
+breeding,43,BARS,Hirundo rustica,Barn Swallow
+breeding,43,BPLT,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+breeding,43,BRPE,Pelecanus occidentalis,Brown Pelican
+breeding,43,BUDG,NA,NA
+breeding,43,CAEG,Bubulcus ibis,Cattle Egret
+breeding,43,CAMA,Progne dominicensis,Caribbean Martin
+breeding,43,CGDO,Columbina passerina,Common Ground Dove
+breeding,43,COTE,Sterna hirundo,Common Tern
+breeding,43,EUCD,Streptopelia decaocto,Eurasian Collared-Dove
+breeding,43,GAGR,Quiscalus niger,Greater Antillean Grackle
+breeding,43,GRAK,Tyrannus dominicensis,Gray Kingbird
+breeding,43,GREG,Ardea alba,Great Egret
+breeding,43,GRHE,Butorides virescens,Green Heron
+breeding,43,HILC,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+breeding,43,HIMA,Anthracothorax dominicus,Hispaniolan Mango
+breeding,43,HIWO,Melanerpes striatus,Hispaniolan Woodpecker
+breeding,43,HOSP,Passer domesticus,House Sparrow
+breeding,43,HPAK,Psittacara chloropterus,Hispaniolan Parakeet
+breeding,43,HPAT,Amazona ventralis,Hispaniolan Parrot
+breeding,43,LAGU,Leucophaeus atricilla,Laughing Gull
+breeding,43,MAFR,Fregata magnificens,Magnificent Frigatebird
+breeding,43,MODO,Zenaida macroura,Mourning Dove
+breeding,43,NOMO,Mimus polyglottos,Northern Mockingbird
+breeding,43,PALM,Dulus dominicus,Palmchat
+breeding,43,PETH,Margarops fuscatus,Pearly-eyed Thrasher
+breeding,43,RLTH,Turdus plumbeus,Red-legged Thrush
+breeding,43,ROPI,Columba livia,Rock Pigeon
+breeding,43,SBMU,Lonchura punctulata,Scaly-breasted Munia
+breeding,43,SHCO,Molothrus bonariensis,Shiny Cowbird
+breeding,43,SNEG,Egretta thula,Snowy Egret
+breeding,43,SPSA,Actitis macularius,Spotted Sandpiper
+breeding,43,SUCO,Cacatua galerita,Sulphur-crested Cockatoo
+breeding,43,TRHE,Egretta tricolor,Tricolored Heron
+breeding,43,VEHU,Mellisuga minima,Vervain Hummingbird
+breeding,43,VIWE,Ploceus cucullatus,Village Weaver
+breeding,43,WWDO,Zenaida asiatica,White-winged Dove
+breeding,43,YCNH,Nyctanassa violacea,Yellow-crowned Night-Heron
+breeding,43,YFGR,Tiaris olivaceus,Yellow-faced Grassquit
+breeding,43,YTWA,Setophaga dominica,Yellow-throated Warbler
+fallmigr,85,AMKE,Falco sparverius,American Kestrel
+fallmigr,85,AMRE,Setophaga ruticilla,American Redstart
+fallmigr,85,ANPS,Tachornis phoenicobia,Antillean Palm-Swift
+fallmigr,85,BANA,Coereba flaveola,Bananaquit
+fallmigr,85,BAOR,Icterus galbula,Baltimore Oriole
+fallmigr,85,BARS,Hirundo rustica,Barn Swallow
+fallmigr,85,BAWW,Mniotilta varia,Black-and-white Warbler
+fallmigr,85,BBPL,Pluvialis squatarola,Black-bellied Plover
+fallmigr,85,BEKI,Megaceryle alcyon,Belted Kingfisher
+fallmigr,85,BLPW,Setophaga striata,Blackpoll Warbler
+fallmigr,85,BPLT,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+fallmigr,85,BRPE,Pelecanus occidentalis,Brown Pelican
+fallmigr,85,BTBW,Setophaga caerulescens,Black-throated Blue Warbler
+fallmigr,85,BTNW,Setophaga virens,Black-throated Green Warbler
+fallmigr,85,BUDG,NA,NA
+fallmigr,85,BWVI,Vireo altiloquus,Black-whiskered Vireo
+fallmigr,85,CAEG,Bubulcus ibis,Cattle Egret
+fallmigr,85,CAMA,Progne dominicensis,Caribbean Martin
+fallmigr,85,CASW,Petrochelidon fulva,Cave Swallow
+fallmigr,85,CGDO,Columbina passerina,Common Ground Dove
+fallmigr,85,CMWA,Setophaga tigrina,Cape May Warbler
+fallmigr,85,COGA,Gallinula galeata,Common Gallinule
+fallmigr,85,COTE,Sterna hirundo,Common Tern
+fallmigr,85,COYE,Geothlypis trichas,Common Yellowthroat
+fallmigr,85,CSWA,Setophaga pensylvanica,Chestnut-sided Warbler
+fallmigr,85,EUCD,Streptopelia decaocto,Eurasian Collared-Dove
+fallmigr,85,FTFL,Tyrannus savana,Fork-tailed Flycatcher
+fallmigr,85,GAGR,Quiscalus niger,Greater Antillean Grackle
+fallmigr,85,GRAK,Tyrannus dominicensis,Gray Kingbird
+fallmigr,85,GREG,Ardea alba,Great Egret
+fallmigr,85,GRHE,Butorides virescens,Green Heron
+fallmigr,85,HILC,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+fallmigr,85,HIMA,Anthracothorax dominicus,Hispaniolan Mango
+fallmigr,85,HIWO,Melanerpes striatus,Hispaniolan Woodpecker
+fallmigr,85,HOSP,Passer domesticus,House Sparrow
+fallmigr,85,HOWA,Setophaga citrina,Hooded Warbler
+fallmigr,85,HPAK,Psittacara chloropterus,Hispaniolan Parakeet
+fallmigr,85,HPAT,Amazona ventralis,Hispaniolan Parrot
+fallmigr,85,KILL,Charadrius vociferus,Killdeer
+fallmigr,85,LESA,Calidris minutilla,Least Sandpiper
+fallmigr,85,LEYE,Tringa flavipes,Lesser Yellowlegs
+fallmigr,85,MACU,Coccyzus minor,Mangrove Cuckoo
+fallmigr,85,MAFR,Fregata magnificens,Magnificent Frigatebird
+fallmigr,85,MAWA,Setophaga magnolia,Magnolia Warbler
+fallmigr,85,MERL,Falco columbarius,Merlin
+fallmigr,85,MODO,Zenaida macroura,Mourning Dove
+fallmigr,85,NOMO,Mimus polyglottos,Northern Mockingbird
+fallmigr,85,NOPA,Setophaga americana,Northern Parula
+fallmigr,85,NOWA,Parkesia noveboracensis,Northern Waterthrush
+fallmigr,85,OSPR,Pandion haliaetus,Osprey
+fallmigr,85,OVEN,Seiurus aurocapilla,Ovenbird
+fallmigr,85,PALM,Dulus dominicus,Palmchat
+fallmigr,85,PAWA,Setophaga palmarum,Palm Warbler
+fallmigr,85,PBGR,Podilymbus podiceps,Pied-billed Grebe
+fallmigr,85,PEFA,Falco peregrinus,Peregrine Falcon
+fallmigr,85,PETH,Margarops fuscatus,Pearly-eyed Thrasher
+fallmigr,85,PRAW,Setophaga discolor,Prairie Warbler
+fallmigr,85,PROW,Protonotaria citrea,Prothonotary Warbler
+fallmigr,85,RBGR,Pheucticus ludovicianus,Rose-breasted Grosbeak
+fallmigr,85,REVI,Vireo olivaceus,Red-eyed Vireo
+fallmigr,85,RLTH,Turdus plumbeus,Red-legged Thrush
+fallmigr,85,ROPI,Columba livia,Rock Pigeon
+fallmigr,85,ROYT,Thalasseus maximus,Royal Tern
+fallmigr,85,RUTU,Arenaria interpres,Ruddy Turnstone
+fallmigr,85,SATE,Thalasseus sandvicensis,Sandwich Tern
+fallmigr,85,SBMU,Lonchura punctulata,Scaly-breasted Munia
+fallmigr,85,SEPL,Charadrius semipalmatus,Semipalmated Plover
+fallmigr,85,SESA,Calidris pusilla,Semipalmated Sandpiper
+fallmigr,85,SHCO,Molothrus bonariensis,Shiny Cowbird
+fallmigr,85,SNEG,Egretta thula,Snowy Egret
+fallmigr,85,SNPI,Patagioenas squamosa,Scaly-naped Pigeon
+fallmigr,85,SOSA,Tringa solitaria,Solitary Sandpiper
+fallmigr,85,SPSA,Actitis macularius,Spotted Sandpiper
+fallmigr,85,SUCO,Cacatua galerita,Sulphur-crested Cockatoo
+fallmigr,85,TRHE,Egretta tricolor,Tricolored Heron
+fallmigr,85,TUVU,Cathartes aura,Turkey Vulture
+fallmigr,85,UNEM,Empidonax (sp),Unidentified Empidonax
+fallmigr,85,VEHU,Mellisuga minima,Vervain Hummingbird
+fallmigr,85,VIWE,Ploceus cucullatus,Village Weaver
+fallmigr,85,WCPI,Patagioenas leucocephala,White-crowned Pigeon
+fallmigr,85,WWDO,Zenaida asiatica,White-winged Dove
+fallmigr,85,YBCU,Coccyzus americanus,Yellow-billed Cuckoo
+fallmigr,85,YCNH,Nyctanassa violacea,Yellow-crowned Night-Heron
+fallmigr,85,YFGR,Tiaris olivaceus,Yellow-faced Grassquit
+fallmigr,85,YTWA,Setophaga dominica,Yellow-throated Warbler
+nonbreed,63,AMKE,Falco sparverius,American Kestrel
+nonbreed,63,AMRE,Setophaga ruticilla,American Redstart
+nonbreed,63,ANPS,Tachornis phoenicobia,Antillean Palm-Swift
+nonbreed,63,BANA,Coereba flaveola,Bananaquit
+nonbreed,63,BARS,Hirundo rustica,Barn Swallow
+nonbreed,63,BAWW,Mniotilta varia,Black-and-white Warbler
+nonbreed,63,BCNH,Nycticorax nycticorax,Black-crowned Night-Heron
+nonbreed,63,BEKI,Megaceryle alcyon,Belted Kingfisher
+nonbreed,63,BPLT,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+nonbreed,63,BRPE,Pelecanus occidentalis,Brown Pelican
+nonbreed,63,BUDG,NA,NA
+nonbreed,63,CAEG,Bubulcus ibis,Cattle Egret
+nonbreed,63,CAMA,Progne dominicensis,Caribbean Martin
+nonbreed,63,CGDO,Columbina passerina,Common Ground Dove
+nonbreed,63,CMWA,Setophaga tigrina,Cape May Warbler
+nonbreed,63,COTE,Sterna hirundo,Common Tern
+nonbreed,63,COYE,Geothlypis trichas,Common Yellowthroat
+nonbreed,63,EUCD,Streptopelia decaocto,Eurasian Collared-Dove
+nonbreed,63,GAGR,Quiscalus niger,Greater Antillean Grackle
+nonbreed,63,GRAK,Tyrannus dominicensis,Gray Kingbird
+nonbreed,63,GREG,Ardea alba,Great Egret
+nonbreed,63,GRHE,Butorides virescens,Green Heron
+nonbreed,63,HILC,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+nonbreed,63,HIMA,Anthracothorax dominicus,Hispaniolan Mango
+nonbreed,63,HIWO,Melanerpes striatus,Hispaniolan Woodpecker
+nonbreed,63,HOSP,Passer domesticus,House Sparrow
+nonbreed,63,HPAK,Psittacara chloropterus,Hispaniolan Parakeet
+nonbreed,63,HPAT,Amazona ventralis,Hispaniolan Parrot
+nonbreed,63,LAGU,Leucophaeus atricilla,Laughing Gull
+nonbreed,63,LEYE,Tringa flavipes,Lesser Yellowlegs
+nonbreed,63,MACU,Coccyzus minor,Mangrove Cuckoo
+nonbreed,63,MAFR,Fregata magnificens,Magnificent Frigatebird
+nonbreed,63,MAWA,Setophaga magnolia,Magnolia Warbler
+nonbreed,63,MERL,Falco columbarius,Merlin
+nonbreed,63,MODO,Zenaida macroura,Mourning Dove
+nonbreed,63,NOMO,Mimus polyglottos,Northern Mockingbird
+nonbreed,63,NOPA,Setophaga americana,Northern Parula
+nonbreed,63,OSPR,Pandion haliaetus,Osprey
+nonbreed,63,OVEN,Seiurus aurocapilla,Ovenbird
+nonbreed,63,PALM,Dulus dominicus,Palmchat
+nonbreed,63,PAWA,Setophaga palmarum,Palm Warbler
+nonbreed,63,PEFA,Falco peregrinus,Peregrine Falcon
+nonbreed,63,PETH,Margarops fuscatus,Pearly-eyed Thrasher
+nonbreed,63,PRAW,Setophaga discolor,Prairie Warbler
+nonbreed,63,RBGR,Pheucticus ludovicianus,Rose-breasted Grosbeak
+nonbreed,63,RLTH,Turdus plumbeus,Red-legged Thrush
+nonbreed,63,ROPI,Columba livia,Rock Pigeon
+nonbreed,63,ROYT,Thalasseus maximus,Royal Tern
+nonbreed,63,RUTU,Arenaria interpres,Ruddy Turnstone
+nonbreed,63,SATE,Thalasseus sandvicensis,Sandwich Tern
+nonbreed,63,SBMU,Lonchura punctulata,Scaly-breasted Munia
+nonbreed,63,SEPL,Charadrius semipalmatus,Semipalmated Plover
+nonbreed,63,SHCO,Molothrus bonariensis,Shiny Cowbird
+nonbreed,63,SNEG,Egretta thula,Snowy Egret
+nonbreed,63,SNPI,Patagioenas squamosa,Scaly-naped Pigeon
+nonbreed,63,SPSA,Actitis macularius,Spotted Sandpiper
+nonbreed,63,TUVU,Cathartes aura,Turkey Vulture
+nonbreed,63,VEHU,Mellisuga minima,Vervain Hummingbird
+nonbreed,63,VIWE,Ploceus cucullatus,Village Weaver
+nonbreed,63,WWDO,Zenaida asiatica,White-winged Dove
+nonbreed,63,YCNH,Nyctanassa violacea,Yellow-crowned Night-Heron
+nonbreed,63,YFGR,Tiaris olivaceus,Yellow-faced Grassquit
+nonbreed,63,YTWA,Setophaga dominica,Yellow-throated Warbler
+sprgmigr,71,AMKE,Falco sparverius,American Kestrel
+sprgmigr,71,AMRE,Setophaga ruticilla,American Redstart
+sprgmigr,71,ANPS,Tachornis phoenicobia,Antillean Palm-Swift
+sprgmigr,71,BANA,Coereba flaveola,Bananaquit
+sprgmigr,71,BAWW,Mniotilta varia,Black-and-white Warbler
+sprgmigr,71,BCNH,Nycticorax nycticorax,Black-crowned Night-Heron
+sprgmigr,71,BEKI,Megaceryle alcyon,Belted Kingfisher
+sprgmigr,71,BLSW,Cypseloides niger,Black Swift
+sprgmigr,71,BPLT,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+sprgmigr,71,BRPE,Pelecanus occidentalis,Brown Pelican
+sprgmigr,71,BUDG,NA,NA
+sprgmigr,71,BWTE,Spatula discors,Blue-winged Teal
+sprgmigr,71,BWVI,Vireo altiloquus,Black-whiskered Vireo
+sprgmigr,71,CAEG,Bubulcus ibis,Cattle Egret
+sprgmigr,71,CAMA,Progne dominicensis,Caribbean Martin
+sprgmigr,71,CGDO,Columbina passerina,Common Ground Dove
+sprgmigr,71,CMWA,Setophaga tigrina,Cape May Warbler
+sprgmigr,71,COGA,Gallinula galeata,Common Gallinule
+sprgmigr,71,COYE,Geothlypis trichas,Common Yellowthroat
+sprgmigr,71,EUCD,Streptopelia decaocto,Eurasian Collared-Dove
+sprgmigr,71,GAGR,Quiscalus niger,Greater Antillean Grackle
+sprgmigr,71,GLIB,Plegadis falcinellus,Glossy Ibis
+sprgmigr,71,GRAK,Tyrannus dominicensis,Gray Kingbird
+sprgmigr,71,GREG,Ardea alba,Great Egret
+sprgmigr,71,GRHE,Butorides virescens,Green Heron
+sprgmigr,71,HILC,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+sprgmigr,71,HIMA,Anthracothorax dominicus,Hispaniolan Mango
+sprgmigr,71,HIWO,Melanerpes striatus,Hispaniolan Woodpecker
+sprgmigr,71,HOSP,Passer domesticus,House Sparrow
+sprgmigr,71,HPAK,Psittacara chloropterus,Hispaniolan Parakeet
+sprgmigr,71,HPAT,Amazona ventralis,Hispaniolan Parrot
+sprgmigr,71,KILL,Charadrius vociferus,Killdeer
+sprgmigr,71,LAGU,Leucophaeus atricilla,Laughing Gull
+sprgmigr,71,LBHE,Egretta caerulea,Little Blue Heron
+sprgmigr,71,LEYE,Tringa flavipes,Lesser Yellowlegs
+sprgmigr,71,MAFR,Fregata magnificens,Magnificent Frigatebird
+sprgmigr,71,MAWA,Setophaga magnolia,Magnolia Warbler
+sprgmigr,71,MERL,Falco columbarius,Merlin
+sprgmigr,71,MODO,Zenaida macroura,Mourning Dove
+sprgmigr,71,NOMO,Mimus polyglottos,Northern Mockingbird
+sprgmigr,71,NOPA,Setophaga americana,Northern Parula
+sprgmigr,71,NOWA,Parkesia noveboracensis,Northern Waterthrush
+sprgmigr,71,OSPR,Pandion haliaetus,Osprey
+sprgmigr,71,PALM,Dulus dominicus,Palmchat
+sprgmigr,71,PEFA,Falco peregrinus,Peregrine Falcon
+sprgmigr,71,PETH,Margarops fuscatus,Pearly-eyed Thrasher
+sprgmigr,71,PRAW,Setophaga discolor,Prairie Warbler
+sprgmigr,71,PROW,Protonotaria citrea,Prothonotary Warbler
+sprgmigr,71,RFLO,Agapornis roseicollis,Rosy-faced Lovebird
+sprgmigr,71,RLTH,Turdus plumbeus,Red-legged Thrush
+sprgmigr,71,ROPI,Columba livia,Rock Pigeon
+sprgmigr,71,ROYT,Thalasseus maximus,Royal Tern
+sprgmigr,71,RUTU,Arenaria interpres,Ruddy Turnstone
+sprgmigr,71,SATE,Thalasseus sandvicensis,Sandwich Tern
+sprgmigr,71,SBAN,Crotophaga ani,Smooth-billed Ani
+sprgmigr,71,SBMU,Lonchura punctulata,Scaly-breasted Munia
+sprgmigr,71,SEPL,Charadrius semipalmatus,Semipalmated Plover
+sprgmigr,71,SESA,Calidris pusilla,Semipalmated Sandpiper
+sprgmigr,71,SHCO,Molothrus bonariensis,Shiny Cowbird
+sprgmigr,71,SNEG,Egretta thula,Snowy Egret
+sprgmigr,71,SNPI,Patagioenas squamosa,Scaly-naped Pigeon
+sprgmigr,71,SPSA,Actitis macularius,Spotted Sandpiper
+sprgmigr,71,SUCO,Cacatua galerita,Sulphur-crested Cockatoo
+sprgmigr,71,TUVU,Cathartes aura,Turkey Vulture
+sprgmigr,71,VEHU,Mellisuga minima,Vervain Hummingbird
+sprgmigr,71,VIWE,Ploceus cucullatus,Village Weaver
+sprgmigr,71,WILL,Tringa semipalmata,Willet
+sprgmigr,71,WWDO,Zenaida asiatica,White-winged Dove
+sprgmigr,71,YCNH,Nyctanassa violacea,Yellow-crowned Night-Heron
+sprgmigr,71,YFGR,Tiaris olivaceus,Yellow-faced Grassquit
+sprgmigr,71,YTWA,Setophaga dominica,Yellow-throated Warbler

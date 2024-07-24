@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.896349999999998,18.479869999999998,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.88964,18.474810000000002,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.893510000000006,18.47344,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.892520000000005,18.475359999999998,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535129999999995,-18.284140000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.538060000000002,18.286349999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.538079999999994,18.286332999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="3">
+      <name>3</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.5381,18.28632,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="4">
+      <name>4</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.538120000000006,18.286300000000001,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

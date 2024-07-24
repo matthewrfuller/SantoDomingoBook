@@ -1,0 +1,8 @@
+﻿"ID","Description","Condition % >="
+1,Excellent,100
+2,Good,90
+3,Fair,75
+4,Poor,50
+5,Critical,25
+6,Dying,1
+7,Dead,0

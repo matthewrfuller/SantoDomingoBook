@@ -1,0 +1,38 @@
+"ID","Stratum","Address","Latitude (Y)","Longitude (X)","Date","Crew","Contact Info","Size (ha)","Photo ID","Stake","% Tree","% Shrub","% Plantable","% Measured","Notes","Complete?"
+1,Urban,"Calle Isabela la Catolica",18.476334,-69.883897791886,2/23/2016,"Pou, Pereyra, Caballero, Sosa",,0.0405,,False,"1% - 5%","1% - 5%",0%,100,"Edificio Centro Cultural de las Telecomunicaciones",True
+2,Urban,"En Calle Mella",18.473961,-69.8911812122772,2/23/2016,"L. Cortez, S. Delgado, M.Perez",,0.0405,,False,0%,0%,0%,100,"Fotografias de parcela N: 063-064, W: 65-66, E: 69-70, S: 71-72",True
+3,Urban,"Calle Vicente Celestino Duarte #208",18.477586,-69.8867155752681,2/23/2016,"Ana, Sosa, Pereira, Caballero",,0.0405,,False,"1% - 5%",0%,0%,100,,True
+4,Urban,"Calle El Conde",18.472498,-69.887056957369,2/25/2016,G3,,0.0405,,False,"1% - 5%","1% - 5%",0%,100,"Edificio abandonado, plot incluye area abierta del sengundo nivel y patio del primer nivel",True
+5,Urban,"Calle primera de marzo esquina mercedes",18.474761,-69.887135887408,2/24/2016,"Pou, Pereyra, Sosa, Medina",,0.0405,,False,"10% - 15%","1% - 5%",0%,100,"Primera iglesia evangelica dominicana, no hubo acceso al techo",True
+6,Urban,"Calle duarte y Calle Padre Bellini",18.471549,-69.8858706421132,2/25/2016,G3,,0.0405,,False,0%,0%,0%,100,"Plot en techo de edificio abandonado pero con senales de restauracion",True
+7,Urban,"Arzobispo Merino Esquina Vicente Celestino Duarte",18.477976,-69.8851674457385,2/22/2016,G2,,0.0405,,False,"15% - 20%","5% - 10%","10% - 15%",100,"Punto GPS tomado a 11.33 m del punto de referencia",True
+8,Urban,"Isabel La Catolica",18.479124,-69.8844298955802,2/24/2016,"Sofia, Mancebo, Heidy",,0.0405,,False,0%,0%,0%,100,"Plot en techo de edificio, punto GPS tp,adp kistp enfrente",True
+9,Urban,"Calle Vicente Celestino Duarte",18.469423,-69.8837207382514,2/23/2016,"Sofia, Heidel, Mancebo, Camejo",,0.0405,,False,"20% - 25%","5% - 10%","5% - 10%",100,"Direccion Nacional de flolklore",True
+10,Urban,"Calle Isabel La Catolica esquina Vicente Celestino Duarte",18.478297,-69.8843537167357,2/23/2016,"Sofia,Heidel,Mancebo,Camejo",,0.0405,,False,0%,"5% - 10%",0%,100,,True
+11,Urban,"Calle Arzobispo casi esquina Calle Hostos",18.884472,-69.884472,4/21/2016,"Pou, Caballero, Sosa",,0.0405,,False,"55% - 60%",0%,0%,100,,True
+12,Urban,"Calle 19 marzo, Casa No 113",18.47074,-69.8859264323727,2/20/2016,"Sofia, Mervin, Jerry, JP",,0.0405,,False,"20% - 25%","10% - 15%","25% - 30%",100,,True
+13,Urban,"Calle Pellerano Alfau",18.473182,-69.8829607634374,2/24/2016,"Sofia,Mancebo,Heidel",,0.0405,,False,"15% - 20%","1% - 5%","1% - 5%",100,"Se tomaron dos puntos de referencia ademas del principal",True
+14,Urban,"Ruinas de San Francisco",18.47653,-69.8869031632053,2/22/2016,G2,,0.0405,,False,"45% - 50%",0%,"10% - 15%",100,,True
+15,Urban,"Calle las mercedes",18.472165,-69.8910705843867,2/25/2016,"Pou,sosa,pereyra,caballero",,0.0405,,False,"1% - 5%",0%,0%,100,"edificio # 462",True
+16,Urban,"Callejon de Regina No.9",18.470527,-69.884472,2/25/2016,"Pou, Sosa, Pereyra, Caballeros",,0.0405,,False,"1% - 5%","1% - 5%",0%,100,"La casa donde cayo el punto esta vacia",True
+17,Urban,"Edificio en Calle conde",18.472658,-69.8871950025263,2/25/2016,G3,,0.0405,,False,"1% - 5%","1% - 5%",0%,100,"Techo del edificio abandonado pero en proceso de restauracion, esta parte fue categorizada como vacante",True
+18,Urban,"Edificio Casa Curia y Residencia de Religiosas",18.471219,-69.8885500042931,2/24/2016,G3,,0.0405,,False,0%,0%,0%,100,"Fotos plot, N:141-142, E: 143-144, S: 145-146",True
+19,Urban,"Calle Isabela la Catolica",18.4718056,-69.899944,2/25/2016,"Sofia,Mancebo,Heidel",,0.0405,,False,0%,"1% - 5%",0%,100,"El punto se tomo frente a la residencia",True
+20,Urban,"Calle Restauracion No. 57",18.477348,-69.8867913052697,2/23/2016,"Pou,Sosa,Pereyra,Caballero",,0.0405,,False,"1% - 5%","1% - 5%",0%,100,,True
+21,Urban,"Calle Arzobispo Porte",18.469194,-69.8875954469962,2/21/2016,"Mervin,Jerry,Sofia",,0.0405,,False,"15% - 20%","5% - 10%",0%,100,"No hubo acceso a terraza",True
+22,Urban,"Calle Vicente Celestino Duarte",18.477452,-69.8871972016206,2/24/2016,"Pou, Pereyra, Caballero, Sosa, Medina",,0.0405,,False,"1% - 5%","1% - 5%",0%,100,"Propiedad del centro comercial La Sirena",True
+23,Urban,"Calle 19 marzo y Calle las mercedes",18.474006,-69.8871729885898,2/24/2016,G3,,0.0405,,False,"1% - 5%","10% - 15%",0%,100,Multiresiencial,True
+24,Urban,"Museo de la Resistencia",18.471487,-69.88810427601,2/24/2016,G3,,0.0405,,False,"1% - 5%","20% - 25%",0%,100,"Patio del museo",True
+25,Urban,"Calle 19 de Marzo",18.4745075,-69.89810277,4/21/2016,"Pou et al","Sra. Danae (809)501-9664",0.0405,,False,"10% - 15%",0%,0%,100,"Casa al lado de Narai Residence",True
+26,Urban,"Plaza Juan Maria Lora",18.467826,-69.8897323740013,2/21/2016,"Mervin,Sofia,Jerry",,0.0405,,False,"15% - 20%","15% - 20%","35% - 40%",100,"Pequena rotonda cerca del Malecon",True
+27,Urban,"Calle Restauracion esquina Calle Duarte",18.477131,-69.8870193012855,2/22/2016,"Ana,Claudia,Amancio",,0.0405,,False,0%,0%,0%,100,,True
+28,Urban,,18.471564,-69.890028573886639,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+29,Urban,,18.469738,-69.881618194474939,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+30,Urban,"Comercial Senorial",18.47736,-69.8873900363837,2/22/2016,"Santiago,Kirsis,Mervin,Leonardo",,0.0405,,False,0%,0%,0%,100,"Mitad del plot en techo del edificio y el resto sobre calle",True
+31,Urban,,18.476994,-69.881406132279182,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+32,Urban,,18.478847,-69.883778418308182,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+33,Urban,,18.476771,-69.884906659812131,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+34,Urban,,18.470458,-69.881719025665618,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+35,Urban,,18.472578,-69.886842253143939,,,,0.0405,,False,"-- Not Entered --","-- Not Entered --","-- Not Entered --",100,,False
+109,Urban,"Calle Jobo Bonito",18.474442,-69.88979,2/23/2016,"Cortez,Delgado,Perez",,0.0405,,False,"10% - 15%","1% - 5%","10% - 15%",100,"Por el Polideportivo Club San Lazaro",True
+136,Urban,"Calle Duarte con Calle Conde",18.473611,-69.886194,2/25/2016,"Sofia, Mancebo, Heidy",,0.0405,,False,"1% - 5%","5% - 10%",0%,100,"Parcela sobre techo que incluye parte del Hotel Palacio",True

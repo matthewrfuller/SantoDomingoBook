@@ -1,0 +1,12 @@
+Plot ID,Tree ID,Species Name,DBH (in),Height (ft),Crown Height (ft),Crown Width (ft),Canopy Cover (ft^2),Tree Condition,Leaf Area (ft^2),Leaf Biomass (lb),Leaf Area Index,Basal Area (ft^2),Street Tree,Native to State,"Private Tree
+"
+21,1,Spanish lime,27.9,51.8,40.4,41.0,"1,320.9",FAIR,"5,336.2",88.3,4.0,4.251,NO,NO,No
+21,2,French plantain,8.0,6.9,1.3,11.0,94.9,GOOD,93.9,3.2,1.0,0.352,NO,NO,No
+22,1,Lemon,7.1,16.8,5.5,8.7,59.4,GOOD,79.5,2.4,1.3,0.274,NO,NO,No
+24,1,Neem Tree,6.2,13.5,4.3,13.6,145.6,GOOD,174.2,2.7,1.2,0.208,NO,NO,No
+26,1,Black olive,6.7,22.0,6.2,11.3,100.6,FAIR,109.9,2.9,1.1,0.244,YES,NO,Yes
+29,1,Florida royal palm,14.9,43.3,21.3,12.5,122.1,GOOD,322.9,11.1,2.6,1.208,NO,NO,No
+29,2,Manila,5.5,15.4,8.2,5.6,24.4,GOOD,35.1,1.2,1.4,0.163,YES,NO,Yes
+29,3,Manila,2.6,6.6,3.6,3.8,11.2,GOOD,12.4,0.4,1.1,0.036,YES,NO,Yes
+29,4,Manila,3.1,7.2,3.3,4.1,13.2,CRITICAL,8.0,0.3,0.6,0.053,YES,NO,Yes
+

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.534180000000006,18.28004,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.534170000000003,18.280059999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="3">
+      <name>3</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.534139999999994,18.28003,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="4">
+      <name>4</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.534170000000003,18.28002,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="5">
+      <name>5</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.534210000000002,18.279979999999998,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.53519,18.283049999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535210000000006,18.28304,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="3">
+      <name>3</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535219999999995,18.283090000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="4">
+      <name>4</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535259999999994,18.18308,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="5">
+      <name>5</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535219999999995,18.283059999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="6">
+      <name>6</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.53519,18.28707,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="7">
+      <name>7</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.53519,18.283090000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="8">
+      <name>8</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.532899999999998,18.283069999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="9">
+      <name>9</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535160000000005,18.28302,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="10">
+      <name>10</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.5351,18.283010000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="11">
+      <name>11</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535160000000005,18.283010000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="12">
+      <name>12</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535169999999994,18.28302,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="13">
+      <name>13</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.535179999999997,18.283010000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="14">
+      <name>14</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.53519,18.28303,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.533270000000002,18.28012,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.53725,18.280139999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="3">
+      <name>3</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.577730000000003,18.280090000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536280000000005,18.27985,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536209999999997,18.279730000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="3">
+      <name>3</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536270000000002,18.279900000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="4">
+      <name>4</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536249999999995,18.279779999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536349999999999,18.281320000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.280339999999995,18.280339999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.533879999999996,18.279979999999998,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="1">
+      <name>1</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536569999999998,18.279219999999999,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="2">
+      <name>2</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536529999999999,18.273900000000001,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark id="3">
+      <name>3</name>
+      <description>Urban</description>
+      <Point>
+        <coordinates>-69.536529999999999,18.279389999999999,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,11 @@
+Plot ID,Tree ID,Species Name,Leaf Area (ft^2),Potential Evapotranspiration (gal/yr),Evaporation (gal/yr),Transpiration (gal/yr),Water Intercepted (gal/yr),Avoided Runoff (gal/yr),Avoided Runoff Value ($/yr)
+21,1,Spanish lime,"5,336.2","22,112.7",452.5,"12,956.9",452.5,4.8,0.04
+21,2,French plantain,93.9,389.1,8.0,228.0,8.0,0.1,0.00
+22,1,Lemon,79.5,329.6,6.7,193.1,6.7,0.1,0.00
+24,1,Neem Tree,174.2,722.0,14.8,423.0,14.8,0.2,0.00
+26,1,Black olive,109.9,455.3,9.3,266.8,9.3,0.1,0.00
+29,1,Florida royal palm,322.9,"1,337.9",27.4,783.9,27.4,0.3,0.00
+29,2,Manila,35.1,145.4,3.0,85.2,3.0,0.0,0.00
+29,3,Manila,12.4,51.2,1.0,30.0,1.0,0.0,0.00
+29,4,Manila,8.0,33.3,0.7,19.5,0.7,0.0,0.00
+

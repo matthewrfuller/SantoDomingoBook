@@ -1,0 +1,8 @@
+﻿"ID","Description","% Dieback <="
+1,Excellent,0
+2,Good,10
+3,Fair,25
+4,Poor,50
+5,Critical,75
+6,Dying,99
+7,Dead,100

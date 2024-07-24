@@ -1,0 +1,19 @@
+"ID","Stratum","Address","Latitude (Y)","Longitude (X)","Date","Crew","Contact Info","Size (ha)","Photo ID","Stake","% Tree","% Shrub","% Plantable","% Measured","Notes","Complete?"
+19,Urban,"Avenida 27 de febrero, esquina Avenida 30 de marzo",18.47917,-69.89861,9/23/2016,1,,0.0405,"N.(114638) .N(114605) E.(114700) .E(114619)",False,0%,0%,0%,100,"Plot sobre techo de edificio #270",True
+20,Urban,"Calle 30 de marzo esquina calle gaspar hernandez ",18.47877,-69.89851,9/23/2016,1,"Comercio: 8096896500",0.0405,"F(113839) S.(113964) .E(113940) .O(113950)",False,0%,0%,0%,100,,True
+21,Urban,"Calle Barahona, callejon casa #206",18.4799,-69.89643,9/23/2016,1,,0.0405,"N.(132331) .N(132341) .E(132346) .O(132359)",False,"10% - 15%",0%,0%,100,"Plot entrando por el callejon entre las casas# 206 y # 208.",True
+22,Urban,"Calle 30 de marzo (parqueo claro)",18.47336,-69.89348,8/26/2016,1,,0.0405,".N(0420) .S(0423) .E(0422) .O(0421) O.(0424)",False,"5% - 10%",0%,0%,100,"Parqueo empresa CLARO",True
+23,Urban,"Calle Monte cristi (casa #11)",18.47893,-69.89414,8/26/2016,1,,0.0405,"N.(123439) .E(123446) .O(123452) .S(123504)",False,0%,"30% - 35%",0%,100,"Techo de Zinc",True
+24,Urban,"Calle Abreu (Condominio las mercedes)",18.47528,-69.89523,8/26/2016,1,,0.0405,".N(0397) N.(0399) .S(0399) .E(0400) E.(0401) .O(0402) O.(0403)",False,"5% - 10%","1% - 5%",0%,100,,True
+25,Urban,"Calle Abreu (frente algafe autosales)",18.47985,-69.89456,8/26/2016,1,,0.0405,".N(130207) .S(130152) .E(130143) .O(130212)",False,0%,0%,0%,100,"Plot completo localizado en espacio publico",True
+26,Urban,"Calle Guayacanes (Ultra clean)",18.47368,-69.89175,8/26/2016,1,,0.0405,"F(0449) N(0437) E(0438) S(0439) O(0440)",False,"1% - 5%",0%,0%,100,"Fotos tomadas desde torre edificio Bomberos DN. Plot sobre empresa ULTRA CLEAN BERMA",True
+27,Urban,"Calle Monte cristi (callejon casa # 59)",18.47942,-69.8963,8/26/2016,1,,0.0405,"F(120310) (120721) (120843) S(12852) O(120906) N(120918)",False,"5% - 10%",0%,0%,100,"Acceso a traves del callejon de la casa # 59",True
+28,Urban,"Calle Emilio Prud Homme esq. Av. Mexico",18.475402,-69.89322,9/9/2016,1,,0.0405,"W.(110321) .W(110504) .S(110458) .N(110511)",False,0%,0%,0%,100,,True
+29,Urban,"Calle Benigno del Castillo esq. calle 30 de marzo",18.47716,-69.89696,9/14/2016,1,,0.0405,".N (0477) .E(0478) .S(0479) .W(0480) W.(0481)",False,"5% - 10%","5% - 10%",0%,100,"OR Solar solution (comercio) telefono: 80-688-0967",True
+30,Urban,"Calle Abreu Casa # 4",18.47549,-69.89558,9/14/2016,1,,0.0405,"E. (0476)",False,0%,0%,0%,100,"Area del plot se encuentra por complento en la edificacion (Tecnofactory)",True
+31,Urban,"Calle Hernando Gorjon ",18.47598,-69.89055,9/14/2016,1,,0.0405,"Fachada (103545) N.(104246) S.(104215) E.(104226) W.(104233)",False,0%,0%,0%,100,"Area del plot completa en el almacen. No acceso al techo.",True
+32,Urban,"Calle Cuba esq. calle Fausto Rodriguez. Casa # 66",18.48,-69.89359,9/23/2016,1,,0.0405,"Fachada (125516) N.(125559) E.(125603) S.(125609)",False,0%,0%,0%,100,"Casa #66",True
+33,Urban,"Calle Salcedo, San Carlos",18.47779,-69.89535,8/22/2016,1,,0.0405,".N(112235) .E(112258) .S(112258) .W(112304)",False,0%,0%,0%,100,"Area del plot convertida en parqueo",True
+34,Urban,"Calle Benito Gonzalez #148 esq. calle Del Monte Tejada",18.47594,-69.89167,8/22/2016,1,,0.0405,"Fachada (102526) N.(105520) E.(105530) W.(105543) S.(105557)",False,0%,0%,0%,100,"No acceso (Plot en casa con techo de zinc)",True
+35,Urban,"Calle Pasaje # 1 esq. calle 30 de marzo y 16 de agosto",18.47263,-69.89303,8/26/2016,1,,0.0405,".N (0414) .E(0416) E.(0417) .W(0415)",False,0%,0%,0%,100,,True
+36,Urban,"Calle Imbert esq. callejon Imbert",18.47395,-69.89401,8/26/2016,1,,0.0405,"N.(0426) .N(0427) .S(0431) S.(0432) .E(0435) E.(0436) .W(0433) W.(0434)",False,0%,0%,0%,100,,True

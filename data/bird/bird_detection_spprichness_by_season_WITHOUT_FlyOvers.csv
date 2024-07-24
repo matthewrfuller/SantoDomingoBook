@@ -1,0 +1,263 @@
+season,SppAlphaCode,detection_richness,prop_of_sites,ScientificName,CommonNameEnglish
+breeding,AMKE,43,0.9295774647887324,Falco sparverius,American Kestrel
+breeding,AMRE,43,0.028169014084507043,Setophaga ruticilla,American Redstart
+breeding,ANPS,43,0.22535211267605634,Tachornis phoenicobia,Antillean Palm-Swift
+breeding,BANA,43,0.971830985915493,Coereba flaveola,Bananaquit
+breeding,BARS,43,0.014084507042253521,Hirundo rustica,Barn Swallow
+breeding,BPLT,43,0.647887323943662,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+breeding,BRPE,43,0.028169014084507043,Pelecanus occidentalis,Brown Pelican
+breeding,BUDG,43,0.07042253521126761,NA,NA
+breeding,CAEG,43,0.09859154929577464,Bubulcus ibis,Cattle Egret
+breeding,CAMA,43,0.11267605633802817,Progne dominicensis,Caribbean Martin
+breeding,CGDO,43,0.9577464788732394,Columbina passerina,Common Ground Dove
+breeding,COTE,43,0.014084507042253521,Sterna hirundo,Common Tern
+breeding,EUCD,43,0.7887323943661971,Streptopelia decaocto,Eurasian Collared-Dove
+breeding,GAGR,43,0.2535211267605634,Quiscalus niger,Greater Antillean Grackle
+breeding,GRAK,43,0.9577464788732394,Tyrannus dominicensis,Gray Kingbird
+breeding,GREG,43,0.04225352112676056,Ardea alba,Great Egret
+breeding,GRHE,43,0.09859154929577464,Butorides virescens,Green Heron
+breeding,HILC,43,0.2112676056338028,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+breeding,HIMA,43,0.8450704225352113,Anthracothorax dominicus,Hispaniolan Mango
+breeding,HIWO,43,0.971830985915493,Melanerpes striatus,Hispaniolan Woodpecker
+breeding,HOSP,43,0.971830985915493,Passer domesticus,House Sparrow
+breeding,HPAK,43,0.9295774647887324,Psittacara chloropterus,Hispaniolan Parakeet
+breeding,HPAT,43,0.30985915492957744,Amazona ventralis,Hispaniolan Parrot
+breeding,LAGU,43,0.014084507042253521,Leucophaeus atricilla,Laughing Gull
+breeding,MAFR,43,0.014084507042253521,Fregata magnificens,Magnificent Frigatebird
+breeding,MODO,43,0.971830985915493,Zenaida macroura,Mourning Dove
+breeding,NOMO,43,0.7746478873239436,Mimus polyglottos,Northern Mockingbird
+breeding,PALM,43,0.971830985915493,Dulus dominicus,Palmchat
+breeding,PETH,43,0.014084507042253521,Margarops fuscatus,Pearly-eyed Thrasher
+breeding,RLTH,43,0.23943661971830985,Turdus plumbeus,Red-legged Thrush
+breeding,ROPI,43,0.971830985915493,Columba livia,Rock Pigeon
+breeding,SBMU,43,0.07042253521126761,Lonchura punctulata,Scaly-breasted Munia
+breeding,SHCO,43,0.11267605633802817,Molothrus bonariensis,Shiny Cowbird
+breeding,SNEG,43,0.014084507042253521,Egretta thula,Snowy Egret
+breeding,SPSA,43,0.04225352112676056,Actitis macularius,Spotted Sandpiper
+breeding,SUCO,43,0.014084507042253521,Cacatua galerita,Sulphur-crested Cockatoo
+breeding,TRHE,43,0.014084507042253521,Egretta tricolor,Tricolored Heron
+breeding,VEHU,43,0.7746478873239436,Mellisuga minima,Vervain Hummingbird
+breeding,VIWE,43,0.5774647887323944,Ploceus cucullatus,Village Weaver
+breeding,WWDO,43,0.971830985915493,Zenaida asiatica,White-winged Dove
+breeding,YCNH,43,0.08450704225352113,Nyctanassa violacea,Yellow-crowned Night-Heron
+breeding,YFGR,43,0.8732394366197183,Tiaris olivaceus,Yellow-faced Grassquit
+breeding,YTWA,43,0.028169014084507043,Setophaga dominica,Yellow-throated Warbler
+fallmigr,AMKE,85,0.971830985915493,Falco sparverius,American Kestrel
+fallmigr,AMRE,85,0.8028169014084507,Setophaga ruticilla,American Redstart
+fallmigr,ANPS,85,0.4647887323943662,Tachornis phoenicobia,Antillean Palm-Swift
+fallmigr,BANA,85,1,Coereba flaveola,Bananaquit
+fallmigr,BAOR,85,0.04225352112676056,Icterus galbula,Baltimore Oriole
+fallmigr,BARS,85,0.22535211267605634,Hirundo rustica,Barn Swallow
+fallmigr,BAWW,85,0.30985915492957744,Mniotilta varia,Black-and-white Warbler
+fallmigr,BBPL,85,0.014084507042253521,Pluvialis squatarola,Black-bellied Plover
+fallmigr,BEKI,85,0.09859154929577464,Megaceryle alcyon,Belted Kingfisher
+fallmigr,BLPW,85,0.30985915492957744,Setophaga striata,Blackpoll Warbler
+fallmigr,BPLT,85,0.9295774647887324,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+fallmigr,BRPE,85,0.056338028169014086,Pelecanus occidentalis,Brown Pelican
+fallmigr,BTBW,85,0.056338028169014086,Setophaga caerulescens,Black-throated Blue Warbler
+fallmigr,BTNW,85,0.014084507042253521,Setophaga virens,Black-throated Green Warbler
+fallmigr,BUDG,85,0.14084507042253522,NA,NA
+fallmigr,BWVI,85,0.028169014084507043,Vireo altiloquus,Black-whiskered Vireo
+fallmigr,CAEG,85,0.43661971830985913,Bubulcus ibis,Cattle Egret
+fallmigr,CAMA,85,0.04225352112676056,Progne dominicensis,Caribbean Martin
+fallmigr,CASW,85,0.014084507042253521,Petrochelidon fulva,Cave Swallow
+fallmigr,CGDO,85,1,Columbina passerina,Common Ground Dove
+fallmigr,CMWA,85,0.971830985915493,Setophaga tigrina,Cape May Warbler
+fallmigr,COGA,85,0.028169014084507043,Gallinula galeata,Common Gallinule
+fallmigr,COTE,85,0.028169014084507043,Sterna hirundo,Common Tern
+fallmigr,COYE,85,0.19718309859154928,Geothlypis trichas,Common Yellowthroat
+fallmigr,CSWA,85,0.014084507042253521,Setophaga pensylvanica,Chestnut-sided Warbler
+fallmigr,EUCD,85,0.971830985915493,Streptopelia decaocto,Eurasian Collared-Dove
+fallmigr,FTFL,85,0.014084507042253521,Tyrannus savana,Fork-tailed Flycatcher
+fallmigr,GAGR,85,0.5633802816901409,Quiscalus niger,Greater Antillean Grackle
+fallmigr,GRAK,85,0.971830985915493,Tyrannus dominicensis,Gray Kingbird
+fallmigr,GREG,85,0.2112676056338028,Ardea alba,Great Egret
+fallmigr,GRHE,85,0.08450704225352113,Butorides virescens,Green Heron
+fallmigr,HILC,85,0.4084507042253521,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+fallmigr,HIMA,85,0.9154929577464789,Anthracothorax dominicus,Hispaniolan Mango
+fallmigr,HIWO,85,1,Melanerpes striatus,Hispaniolan Woodpecker
+fallmigr,HOSP,85,1,Passer domesticus,House Sparrow
+fallmigr,HOWA,85,0.04225352112676056,Setophaga citrina,Hooded Warbler
+fallmigr,HPAK,85,0.9859154929577465,Psittacara chloropterus,Hispaniolan Parakeet
+fallmigr,HPAT,85,0.49295774647887325,Amazona ventralis,Hispaniolan Parrot
+fallmigr,KILL,85,0.028169014084507043,Charadrius vociferus,Killdeer
+fallmigr,LESA,85,0.014084507042253521,Calidris minutilla,Least Sandpiper
+fallmigr,LEYE,85,0.014084507042253521,Tringa flavipes,Lesser Yellowlegs
+fallmigr,MACU,85,0.014084507042253521,Coccyzus minor,Mangrove Cuckoo
+fallmigr,MAFR,85,0.04225352112676056,Fregata magnificens,Magnificent Frigatebird
+fallmigr,MAWA,85,0.014084507042253521,Setophaga magnolia,Magnolia Warbler
+fallmigr,MERL,85,0.8591549295774648,Falco columbarius,Merlin
+fallmigr,MODO,85,0.971830985915493,Zenaida macroura,Mourning Dove
+fallmigr,NOMO,85,0.971830985915493,Mimus polyglottos,Northern Mockingbird
+fallmigr,NOPA,85,0.704225352112676,Setophaga americana,Northern Parula
+fallmigr,NOWA,85,0.028169014084507043,Parkesia noveboracensis,Northern Waterthrush
+fallmigr,OSPR,85,0.1267605633802817,Pandion haliaetus,Osprey
+fallmigr,OVEN,85,0.07042253521126761,Seiurus aurocapilla,Ovenbird
+fallmigr,PALM,85,1,Dulus dominicus,Palmchat
+fallmigr,PAWA,85,0.028169014084507043,Setophaga palmarum,Palm Warbler
+fallmigr,PBGR,85,0.014084507042253521,Podilymbus podiceps,Pied-billed Grebe
+fallmigr,PEFA,85,0.38028169014084506,Falco peregrinus,Peregrine Falcon
+fallmigr,PETH,85,0.014084507042253521,Margarops fuscatus,Pearly-eyed Thrasher
+fallmigr,PRAW,85,0.36619718309859156,Setophaga discolor,Prairie Warbler
+fallmigr,PROW,85,0.028169014084507043,Protonotaria citrea,Prothonotary Warbler
+fallmigr,RBGR,85,0.014084507042253521,Pheucticus ludovicianus,Rose-breasted Grosbeak
+fallmigr,REVI,85,0.014084507042253521,Vireo olivaceus,Red-eyed Vireo
+fallmigr,RLTH,85,0.4225352112676056,Turdus plumbeus,Red-legged Thrush
+fallmigr,ROPI,85,0.9859154929577465,Columba livia,Rock Pigeon
+fallmigr,ROYT,85,0.11267605633802817,Thalasseus maximus,Royal Tern
+fallmigr,RUTU,85,0.028169014084507043,Arenaria interpres,Ruddy Turnstone
+fallmigr,SATE,85,0.04225352112676056,Thalasseus sandvicensis,Sandwich Tern
+fallmigr,SBMU,85,0.28169014084507044,Lonchura punctulata,Scaly-breasted Munia
+fallmigr,SEPL,85,0.028169014084507043,Charadrius semipalmatus,Semipalmated Plover
+fallmigr,SESA,85,0.014084507042253521,Calidris pusilla,Semipalmated Sandpiper
+fallmigr,SHCO,85,0.056338028169014086,Molothrus bonariensis,Shiny Cowbird
+fallmigr,SNEG,85,0.056338028169014086,Egretta thula,Snowy Egret
+fallmigr,SNPI,85,0.056338028169014086,Patagioenas squamosa,Scaly-naped Pigeon
+fallmigr,SOSA,85,0.014084507042253521,Tringa solitaria,Solitary Sandpiper
+fallmigr,SPSA,85,0.08450704225352113,Actitis macularius,Spotted Sandpiper
+fallmigr,SUCO,85,0.014084507042253521,Cacatua galerita,Sulphur-crested Cockatoo
+fallmigr,TRHE,85,0.014084507042253521,Egretta tricolor,Tricolored Heron
+fallmigr,TUVU,85,0.014084507042253521,Cathartes aura,Turkey Vulture
+fallmigr,UNEM,85,0.014084507042253521,Empidonax (sp),Unidentified Empidonax
+fallmigr,VEHU,85,0.971830985915493,Mellisuga minima,Vervain Hummingbird
+fallmigr,VIWE,85,0.647887323943662,Ploceus cucullatus,Village Weaver
+fallmigr,WCPI,85,0.014084507042253521,Patagioenas leucocephala,White-crowned Pigeon
+fallmigr,WWDO,85,0.971830985915493,Zenaida asiatica,White-winged Dove
+fallmigr,YBCU,85,0.014084507042253521,Coccyzus americanus,Yellow-billed Cuckoo
+fallmigr,YCNH,85,0.15492957746478872,Nyctanassa violacea,Yellow-crowned Night-Heron
+fallmigr,YFGR,85,0.971830985915493,Tiaris olivaceus,Yellow-faced Grassquit
+fallmigr,YTWA,85,0.16901408450704225,Setophaga dominica,Yellow-throated Warbler
+ovrwintr,AMKE,63,0.971830985915493,Falco sparverius,American Kestrel
+ovrwintr,AMRE,63,0.7323943661971831,Setophaga ruticilla,American Redstart
+ovrwintr,ANPS,63,0.4647887323943662,Tachornis phoenicobia,Antillean Palm-Swift
+ovrwintr,BANA,63,0.971830985915493,Coereba flaveola,Bananaquit
+ovrwintr,BARS,63,0.014084507042253521,Hirundo rustica,Barn Swallow
+ovrwintr,BAWW,63,0.18309859154929578,Mniotilta varia,Black-and-white Warbler
+ovrwintr,BCNH,63,0.014084507042253521,Nycticorax nycticorax,Black-crowned Night-Heron
+ovrwintr,BEKI,63,0.028169014084507043,Megaceryle alcyon,Belted Kingfisher
+ovrwintr,BPLT,63,0.8732394366197183,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+ovrwintr,BRPE,63,0.028169014084507043,Pelecanus occidentalis,Brown Pelican
+ovrwintr,BUDG,63,0.09859154929577464,NA,NA
+ovrwintr,CAEG,63,0.2112676056338028,Bubulcus ibis,Cattle Egret
+ovrwintr,CAMA,63,0.04225352112676056,Progne dominicensis,Caribbean Martin
+ovrwintr,CGDO,63,0.971830985915493,Columbina passerina,Common Ground Dove
+ovrwintr,CMWA,63,0.8591549295774648,Setophaga tigrina,Cape May Warbler
+ovrwintr,COTE,63,0.028169014084507043,Sterna hirundo,Common Tern
+ovrwintr,COYE,63,0.09859154929577464,Geothlypis trichas,Common Yellowthroat
+ovrwintr,EUCD,63,0.9577464788732394,Streptopelia decaocto,Eurasian Collared-Dove
+ovrwintr,GAGR,63,0.5070422535211268,Quiscalus niger,Greater Antillean Grackle
+ovrwintr,GRAK,63,0.971830985915493,Tyrannus dominicensis,Gray Kingbird
+ovrwintr,GREG,63,0.08450704225352113,Ardea alba,Great Egret
+ovrwintr,GRHE,63,0.09859154929577464,Butorides virescens,Green Heron
+ovrwintr,HILC,63,0.4084507042253521,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+ovrwintr,HIMA,63,0.9295774647887324,Anthracothorax dominicus,Hispaniolan Mango
+ovrwintr,HIWO,63,0.971830985915493,Melanerpes striatus,Hispaniolan Woodpecker
+ovrwintr,HOSP,63,0.971830985915493,Passer domesticus,House Sparrow
+ovrwintr,HPAK,63,0.9436619718309859,Psittacara chloropterus,Hispaniolan Parakeet
+ovrwintr,HPAT,63,0.4788732394366197,Amazona ventralis,Hispaniolan Parrot
+ovrwintr,LAGU,63,0.014084507042253521,Leucophaeus atricilla,Laughing Gull
+ovrwintr,LEYE,63,0.014084507042253521,Tringa flavipes,Lesser Yellowlegs
+ovrwintr,MACU,63,0.028169014084507043,Coccyzus minor,Mangrove Cuckoo
+ovrwintr,MAFR,63,0.028169014084507043,Fregata magnificens,Magnificent Frigatebird
+ovrwintr,MAWA,63,0.014084507042253521,Setophaga magnolia,Magnolia Warbler
+ovrwintr,MERL,63,0.8169014084507042,Falco columbarius,Merlin
+ovrwintr,MODO,63,0.971830985915493,Zenaida macroura,Mourning Dove
+ovrwintr,NOMO,63,0.9577464788732394,Mimus polyglottos,Northern Mockingbird
+ovrwintr,NOPA,63,0.7464788732394366,Setophaga americana,Northern Parula
+ovrwintr,OSPR,63,0.04225352112676056,Pandion haliaetus,Osprey
+ovrwintr,OVEN,63,0.04225352112676056,Seiurus aurocapilla,Ovenbird
+ovrwintr,PALM,63,0.971830985915493,Dulus dominicus,Palmchat
+ovrwintr,PAWA,63,0.014084507042253521,Setophaga palmarum,Palm Warbler
+ovrwintr,PEFA,63,0.2676056338028169,Falco peregrinus,Peregrine Falcon
+ovrwintr,PETH,63,0.028169014084507043,Margarops fuscatus,Pearly-eyed Thrasher
+ovrwintr,PRAW,63,0.2535211267605634,Setophaga discolor,Prairie Warbler
+ovrwintr,RBGR,63,0.014084507042253521,Pheucticus ludovicianus,Rose-breasted Grosbeak
+ovrwintr,RLTH,63,0.4507042253521127,Turdus plumbeus,Red-legged Thrush
+ovrwintr,ROPI,63,0.971830985915493,Columba livia,Rock Pigeon
+ovrwintr,ROYT,63,0.08450704225352113,Thalasseus maximus,Royal Tern
+ovrwintr,RUTU,63,0.014084507042253521,Arenaria interpres,Ruddy Turnstone
+ovrwintr,SATE,63,0.028169014084507043,Thalasseus sandvicensis,Sandwich Tern
+ovrwintr,SBMU,63,0.08450704225352113,Lonchura punctulata,Scaly-breasted Munia
+ovrwintr,SEPL,63,0.028169014084507043,Charadrius semipalmatus,Semipalmated Plover
+ovrwintr,SHCO,63,0.08450704225352113,Molothrus bonariensis,Shiny Cowbird
+ovrwintr,SNEG,63,0.04225352112676056,Egretta thula,Snowy Egret
+ovrwintr,SNPI,63,0.056338028169014086,Patagioenas squamosa,Scaly-naped Pigeon
+ovrwintr,SPSA,63,0.08450704225352113,Actitis macularius,Spotted Sandpiper
+ovrwintr,TUVU,63,0.014084507042253521,Cathartes aura,Turkey Vulture
+ovrwintr,VEHU,63,0.9436619718309859,Mellisuga minima,Vervain Hummingbird
+ovrwintr,VIWE,63,0.352112676056338,Ploceus cucullatus,Village Weaver
+ovrwintr,WWDO,63,0.971830985915493,Zenaida asiatica,White-winged Dove
+ovrwintr,YCNH,63,0.14084507042253522,Nyctanassa violacea,Yellow-crowned Night-Heron
+ovrwintr,YFGR,63,0.9295774647887324,Tiaris olivaceus,Yellow-faced Grassquit
+ovrwintr,YTWA,63,0.14084507042253522,Setophaga dominica,Yellow-throated Warbler
+sprgmigr,AMKE,71,0.971830985915493,Falco sparverius,American Kestrel
+sprgmigr,AMRE,71,0.676056338028169,Setophaga ruticilla,American Redstart
+sprgmigr,ANPS,71,0.5070422535211268,Tachornis phoenicobia,Antillean Palm-Swift
+sprgmigr,BANA,71,0.971830985915493,Coereba flaveola,Bananaquit
+sprgmigr,BAWW,71,0.11267605633802817,Mniotilta varia,Black-and-white Warbler
+sprgmigr,BCNH,71,0.014084507042253521,Nycticorax nycticorax,Black-crowned Night-Heron
+sprgmigr,BEKI,71,0.04225352112676056,Megaceryle alcyon,Belted Kingfisher
+sprgmigr,BLSW,71,0.014084507042253521,Cypseloides niger,Black Swift
+sprgmigr,BPLT,71,0.8591549295774648,Phaenicophilus palmarum,Black-crowned Palm-Tanager
+sprgmigr,BRPE,71,0.07042253521126761,Pelecanus occidentalis,Brown Pelican
+sprgmigr,BUDG,71,0.056338028169014086,NA,NA
+sprgmigr,BWTE,71,0.014084507042253521,Spatula discors,Blue-winged Teal
+sprgmigr,BWVI,71,0.04225352112676056,Vireo altiloquus,Black-whiskered Vireo
+sprgmigr,CAEG,71,0.28169014084507044,Bubulcus ibis,Cattle Egret
+sprgmigr,CAMA,71,0.23943661971830985,Progne dominicensis,Caribbean Martin
+sprgmigr,CGDO,71,0.971830985915493,Columbina passerina,Common Ground Dove
+sprgmigr,CMWA,71,0.8450704225352113,Setophaga tigrina,Cape May Warbler
+sprgmigr,COGA,71,0.028169014084507043,Gallinula galeata,Common Gallinule
+sprgmigr,COYE,71,0.07042253521126761,Geothlypis trichas,Common Yellowthroat
+sprgmigr,EUCD,71,0.971830985915493,Streptopelia decaocto,Eurasian Collared-Dove
+sprgmigr,GAGR,71,0.5352112676056338,Quiscalus niger,Greater Antillean Grackle
+sprgmigr,GLIB,71,0.014084507042253521,Plegadis falcinellus,Glossy Ibis
+sprgmigr,GRAK,71,0.971830985915493,Tyrannus dominicensis,Gray Kingbird
+sprgmigr,GREG,71,0.1267605633802817,Ardea alba,Great Egret
+sprgmigr,GRHE,71,0.14084507042253522,Butorides virescens,Green Heron
+sprgmigr,HILC,71,0.4788732394366197,Coccyzus longirostris,Hispaniolan Lizard-Cuckoo
+sprgmigr,HIMA,71,0.9436619718309859,Anthracothorax dominicus,Hispaniolan Mango
+sprgmigr,HIWO,71,0.971830985915493,Melanerpes striatus,Hispaniolan Woodpecker
+sprgmigr,HOSP,71,0.971830985915493,Passer domesticus,House Sparrow
+sprgmigr,HPAK,71,0.9295774647887324,Psittacara chloropterus,Hispaniolan Parakeet
+sprgmigr,HPAT,71,0.49295774647887325,Amazona ventralis,Hispaniolan Parrot
+sprgmigr,KILL,71,0.014084507042253521,Charadrius vociferus,Killdeer
+sprgmigr,LAGU,71,0.014084507042253521,Leucophaeus atricilla,Laughing Gull
+sprgmigr,LBHE,71,0.014084507042253521,Egretta caerulea,Little Blue Heron
+sprgmigr,LEYE,71,0.014084507042253521,Tringa flavipes,Lesser Yellowlegs
+sprgmigr,MAFR,71,0.056338028169014086,Fregata magnificens,Magnificent Frigatebird
+sprgmigr,MAWA,71,0.014084507042253521,Setophaga magnolia,Magnolia Warbler
+sprgmigr,MERL,71,0.7183098591549296,Falco columbarius,Merlin
+sprgmigr,MODO,71,0.971830985915493,Zenaida macroura,Mourning Dove
+sprgmigr,NOMO,71,0.9577464788732394,Mimus polyglottos,Northern Mockingbird
+sprgmigr,NOPA,71,0.676056338028169,Setophaga americana,Northern Parula
+sprgmigr,NOWA,71,0.014084507042253521,Parkesia noveboracensis,Northern Waterthrush
+sprgmigr,OSPR,71,0.028169014084507043,Pandion haliaetus,Osprey
+sprgmigr,PALM,71,0.971830985915493,Dulus dominicus,Palmchat
+sprgmigr,PEFA,71,0.18309859154929578,Falco peregrinus,Peregrine Falcon
+sprgmigr,PETH,71,0.014084507042253521,Margarops fuscatus,Pearly-eyed Thrasher
+sprgmigr,PRAW,71,0.14084507042253522,Setophaga discolor,Prairie Warbler
+sprgmigr,PROW,71,0.028169014084507043,Protonotaria citrea,Prothonotary Warbler
+sprgmigr,RFLO,71,0.014084507042253521,Agapornis roseicollis,Rosy-faced Lovebird
+sprgmigr,RLTH,71,0.4507042253521127,Turdus plumbeus,Red-legged Thrush
+sprgmigr,ROPI,71,0.971830985915493,Columba livia,Rock Pigeon
+sprgmigr,ROYT,71,0.09859154929577464,Thalasseus maximus,Royal Tern
+sprgmigr,RUTU,71,0.028169014084507043,Arenaria interpres,Ruddy Turnstone
+sprgmigr,SATE,71,0.014084507042253521,Thalasseus sandvicensis,Sandwich Tern
+sprgmigr,SBAN,71,0.04225352112676056,Crotophaga ani,Smooth-billed Ani
+sprgmigr,SBMU,71,0.09859154929577464,Lonchura punctulata,Scaly-breasted Munia
+sprgmigr,SEPL,71,0.028169014084507043,Charadrius semipalmatus,Semipalmated Plover
+sprgmigr,SESA,71,0.014084507042253521,Calidris pusilla,Semipalmated Sandpiper
+sprgmigr,SHCO,71,0.30985915492957744,Molothrus bonariensis,Shiny Cowbird
+sprgmigr,SNEG,71,0.028169014084507043,Egretta thula,Snowy Egret
+sprgmigr,SNPI,71,0.014084507042253521,Patagioenas squamosa,Scaly-naped Pigeon
+sprgmigr,SPSA,71,0.056338028169014086,Actitis macularius,Spotted Sandpiper
+sprgmigr,SUCO,71,0.04225352112676056,Cacatua galerita,Sulphur-crested Cockatoo
+sprgmigr,TUVU,71,0.014084507042253521,Cathartes aura,Turkey Vulture
+sprgmigr,VEHU,71,0.9154929577464789,Mellisuga minima,Vervain Hummingbird
+sprgmigr,VIWE,71,0.5633802816901409,Ploceus cucullatus,Village Weaver
+sprgmigr,WILL,71,0.056338028169014086,Tringa semipalmata,Willet
+sprgmigr,WWDO,71,0.971830985915493,Zenaida asiatica,White-winged Dove
+sprgmigr,YCNH,71,0.22535211267605634,Nyctanassa violacea,Yellow-crowned Night-Heron
+sprgmigr,YFGR,71,0.9154929577464789,Tiaris olivaceus,Yellow-faced Grassquit
+sprgmigr,YTWA,71,0.028169014084507043,Setophaga dominica,Yellow-throated Warbler

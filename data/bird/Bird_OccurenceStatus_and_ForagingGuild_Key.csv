@@ -1,0 +1,205 @@
+ScientificName,CommonNameEnglish,AlphaCode,CommonNameSpanish,OccurenceStatus,ForagingSubGuildEnglish,ForagingGuildEnglish,ForagingSubGuildSpanish,ForagingGuildSpanish
+Tyto glaucops,Ashy-faced Owl,AFOW,Lechuza Cara Ceniza,E,Carnivore,Carnivore,Carnívoro,Carnívoro
+Fulica americana,American Coot,AMCO,Gallareta Pico Blanco,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Phoenicopterus ruber,American Flamingo,AMFL,Flamenco,"R, M",Filter-feeder,Filter-feeder,Filtrador,Filtrador
+Falco sparverius,American Kestrel,AMKE,"Cuyaya, Cernícalo, Salnícalo","R, M",Carnivore,Carnivore,Carnívoro,Carnívoro
+Setophaga ruticilla,American Redstart,AMRE,"Bijirita, Candelita",M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Euphonia musica,Antillean Euphonia,ANEU,Jilgerillo,R,Frug-Invert,Frugivore,Frug-Invert,Frugívoro
+Anthracothorax dominicus,Antillean Mango,ANMA,Zumbador Grande,R,Nectar-Invert,Nectarivore,Nectar-Invert,Nectarívoro
+Chordeiles gundlachii,Antillean Nighthawk,ANNI,Querebebé,R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Nesoctites micromegas,Antillean Piculet,ANPI,Carpintero de Sierra,R,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Tachornis phoenicobia,Antillean Palm-Swift,ANPS ,Vencejito Palmar,R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Spinus dominicensis,Antillean Siskin,ANSI,Canario,R,Gran-Invert,Granivore,Gran-Invert,Granívoro
+Coereba flaveola,Bananaquit,BANA,"Cigüita, Reinita Común",R,Nectar-Invert,Nectarivore,Nectar-Invert,Nectarívoro
+Tyto alba,Barn Owl,BANO,Lechuza Común ó Blanca,R,Carnivore,Carnivore,Carnívoro,Carnívoro
+Icterus galbula,Baltimore Oriole,BAOR,,,,,,
+Hirundo rustica,Barn Swallow,BARS,Golondrina del Norte,M,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Mniotilta varia,Black-and-white Warbler,BAWW,Pega Palo,M,Invert-trunk,Invertivore,Invert-tronc,Invertívoro
+Coccyzus erythropthalmus,Black-billed Cuckoo,BBCU,Pájaro Bobo Pico Negro,V,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Pluvialis squatarola,Black-bellied Plover,BBPL,Chorlo Gris,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Coccyzus rufigularis,Bay-breasted Cuckoo,BBRC,Cúa,R,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Todus subulatus,Broad-billed Tody,BBTO,Barrancolí,E,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Nycticorax nycticorax,Black-crowned Night-Heron,BCNH,Yaboa,"R, M",Carn-Pisc,Carnivore,Carn-Pisc,Carnívoro
+Pterodroma hasitata,Black-capped Petrel,BCPE,Dioblotín,"R, M",Piscivore,Piscivore,Piscívoro,Piscívoro
+Megaceryle alcyon,Belted Kingfisher,BEKI,Martín Pescador,M,Piscivore,Piscivore,Piscívoro,Piscívoro
+Tiaris bicolor,Black-faced Grassquit,BFGR,Juana Maruco,R,Herb-Invert,Herbivore,Herb-Invert,Herbívoro
+Catharus bicknelli,Bicknell's Thrush,BITH,Zorzal de Bicknell,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Setophaga fusca,Blackburnian Warbler,BLBW,Cigüita del Frío,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Setophaga striata,Blackpoll Warbler,BLPW,Cigüita Casco Prieto,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Cypseloides niger,Black Swift,BLSW,Vencejo Negro,"R, M",Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Chlidonias niger,Black Tern,BLTE,Charrán Negro,M,Piscivore,Piscivore,Piscívoro,Piscívoro
+Himantopus mexicanus,Black-necked Stilt,BNST,Viuda,R,Invert-Pisc,Invertivore,Invert-Pisc,Invertívoro
+Phaenicophilus palmarum,Black-crowned Palm-Tanager,BPLT,Cuatro Ojos,E,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Anous stolidus,Brown Noddy,BRBO,Cervera,R,Piscivore,Piscivore,Piscívoro,Piscívoro
+Pelecanus occidentalis,Brown Pelican,BRPE,Pelícano,"R, M",Piscivore,Piscivore,Piscívoro,Piscívoro
+Onychoprion anaethetus,Bridled Tern,BRTE,Charrán Monja,R,Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Setophaga caerulescens,Black-throated Blue Warbler,BTBW,Cigüita Azul,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Setophaga virens,Black-throated Green Warbler,BTNW,Cigüita Pechinegro,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+,,,,,,,,
+Athene cunicularia,Burrowing Owl,BUOW,Cu-cú,"R, M",Carnivore,Carnivore,Carnívoro,Carnívoro
+Spatula discors,Blue-winged Teal,BWTE,,,,,,
+Vireo altiloquus,Black-whiskered Vireo,BWVI,Julián Chiví,"R, M",Invert-glean,Invertivore,Invert-busc,Invertívoro
+Fulica caribaea,Caribbean Coot,CACO,Pico Blanco Caribeña,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Bubulcus ibis,Cattle Egret,CAEG,Garza Ganadera,"R, M",Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Progne dominicensis,Caribbean Martin,CAMA,Golondrina Grande,R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Petrochelidon fulva,Cave Swallow,CASW,Golondrina de Cuevas,R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Hydroprogne caspia,Caspian Tern,CATE,Charrán Piquiroja,M,Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Bombycilla cedrorum,Cedar Waxwing,CEDW,Cigüa Alas de Cera,M,Frug-Invert,Frugivore,Frug-Invert,Frugívoro
+Setophaga tigrina,Cape May Warbler,CMWA,Cigüita Tigrina,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Nymphicus hollandicus,Cockatiel ,COCK,Cacatúa,I,Frug-Gran,Frugivore,Frug-Gran,Frugívoro
+Gallinula galeata,Common Gallinule,COGA,Gallareta Pico Rojo,"R, M",Omnivore,Omnivore,Omnívoro,Omnívoro
+Columbina passerina,Common Ground Dove,COGD,Rolita,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Chordeiles minor,Common Nighthawk,CONI,Querebebé Migratorio,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Sterna hirundo,Common Tern,COTE,Charrán Común,M,Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Geothlypis trichas,Common Yellowthroat,COYE,Cigüita Enmascarada,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Setophaga pensylvanica,Chestnut-sided Warbler,CSWA,Cigüita de Costados Castaños,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Antrostomus carolinensis,Chuck-will's-Widow,CWWI,Don Juan,M,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Calyptophilus frugivorus,Eastern Chat-Tanager,EACT,Chirrí de Neyba,E,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Streptopelia decaocto,Eurasian Collared-Dove,EUCD,Collarina,I,Gran-Frug,Granivore,Gran-Frug,Granívoro
+Vireo nanus,Flat-billed Vireo,FBVI,Cigüita Juliana,E,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Tyrannus savana,Fork-tailed Flycatcher,FTFL,Papamoscas de Cola Bifurcada,V,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Loxigilla violacea,Greater Antillean Bullfinch,GABU,Gallito Prieto,R,frug-Gran,Frugivore,frug-Gran,Frugívoro
+Elaenia fallax,Greater Antillean Elaenia,GAEL,Maroita Canosa,R,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Quiscalus niger,Greater Antillean Grackle,GAGR,Chinchilín,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Antrostomus cubanensis,Greater Antillean Nightjar,GANI,Pitanguá,R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Ardea herodias,Great Blue Heron,GBHE,Garzón,"R, M",Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Gelochelidon nilotica,Gull-billed Tern,GBTE,Charrán Piquigrueso,M,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Plegadis falcinellus,Glossy Ibis,GLIB,Coco Prieto,R,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Tachycineta euchrysea,Golden Swallow,GOSW,Golondrina Verde,R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Tyrannus dominicensis,Gray Kingbird,GRAK,Petigre,"R, M",Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Dumetella carolinensis,Gray Catbird,GRCA,Pájaro Gato,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Ardea alba,Great Egret,GREG,Garza Real,"R, M",Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Butorides virescens,Green Heron,GRHE,Crá-Crá,"R, M",Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Ammodramus savannarum,Grasshopper Sparrow,GRSP,Tumbarrocío,R,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Tringa melanoleuca,Greater Yellowlegs,GRYE,Patas Amarillas Mayor,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Microligea palustris,Green-tailed warbler,GTWA,Cigüita Coliverde,E,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Vermivora chrysoptera,Golden-winged Warbler,GWWA,Cigüita Ala de Oro,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Numida meleagris,Helmeted Guineafowl,HELG,"Guinea, Pintada",I,Omnivore,Omnivore,Omnívoro,Omnívoro
+Larus argentatus,Herring Gull,HERG,Gaviota Arenquera,M,Carn-Invert,Carnivore,Carn-Invert,Carnívoro
+Loxia megaplaga,Hispaniolan Crossbill,HICR,Pico Cruzado,E,Gran-Invert,Granivore,Gran-Invert,Granívoro
+Chlorostilbon swainsonii,Hispaniolan Emerald,HIEM,Zumbador Verde,E,Nectar-Invert,Nectarivore,Nectar-Invert,Nectarívoro
+Coccyzus longirostris,Hispaniolan Lizard-Cuckoo,HILC,Pájaro Bobo,E,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Icterus dominicensis,Hispaniolan Oriole,HIOR,"Calandria, Cigüa Canaria",E,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Contopus hispaniolensis,Hispaniolan Pewee,HIPE,Maroita,E,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Spindalis dominicensis,Hispaniolan Spindalis,HISP,Cigüa Amarilla,E,Frug-Invert,Frugivore,Frug-Invert,Frugívoro
+Priotelus roseigaster,Hispaniolan Trogon,HITR,Papagayo,E,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Melanerpes striatus,Hispaniolan Woodpecker,HIWO,Carpintero,E,Invert-trunk,Invertivore,Invert-tronc,Invertívoro
+Passer domesticus,House Sparrow,HOSP,Gorrión,I,Omnivore,Omnivore,Omnívoro,Omnívoro
+Setophaga citrina,Hooded Warbler,HOWA,Cigüita Gorra Negra,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Psittacara chloropterus,Hispaniolan Parakeet,HPAK,Perico,E,Frugivore,Frugivore,Frugívoro,Frugívoro
+Amazona ventralis,Hispaniolan Parrot,HPAT,Cotorra,E,Frugivore,Frugivore,Frugívoro,Frugívoro
+Charadrius vociferus,Killdeer,KILL,Fraile,"R, M",Invertivore,Invertivore,Invertívoro,Invertívoro
+Geotrygon chrysia,Key West Quail-Dove,KWQD,Perdía,R,Gran-Frug,Granivore,Gran-Frug,Granívoro
+Leucophaeus atricilla,Laughing Gull,LAGU,Gaviota Cabecinegra,"R, M",Omnivore,Omnivore,Omnívoro,Omnívoro
+Limnodromus scolopaceus,Long-billed Dowitcher,LBDO,Agujeta Piquilarga,M,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Egretta caerulea,Little Blue Heron,LBHE,Garza Azul,"R, M",Carn-Invert,Carnivore,Carn-Invert,Carnívoro
+Tachybaptus dominicus,Least Grebe,LEGR,Tigua,R,Herb-Gran,Herbivore,Herb-Gran,Herbívoro
+Siphonorhis brewsteri,Least Pauraque,LEPA,Toríco,E,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Calidris minutilla,Least Sandpiper,LESA,Playerito Menudo,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Sternula antillarum,Least Tern,LETE,Charrán Menor,"R, M",Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Tringa flavipes,Lesser Yellowlegs,LEYE,Playero Patas Amarillas Menor,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Aramus guarauna,Limpkin,LIMP,Carrao,R,Carnivore,Carnivore,Carnívoro,Carnívoro
+Tyrannus caudifasciatus,Loggerhead Kingbird,LOKI,Manjuila,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Parkesia motacilla,Louisiana Waterthrush,LOWA, Cigüita del Agua,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Turdus swalesi,La Selle Thrush,LSTH,Cho-Cho,E,Omnivore,Omnivore,Omnívoro,Omnívoro
+Coccyzus minor,Mangrove Cuckoo,MACU,Pájaro Bobo Menor,R,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Fregata magnificens,Magnificent Frigatebird,MAFR,"Tijereta, Rabihorcado","R, M",Carnivore,Carnivore,Carnívoro,Carnívoro
+Setophaga magnolia,Magnolia Warbler,MAWA,Cigüita Magnolia,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Falco columbarius,Merlin,MERL,Halconcito,M,Carnivore,Carnivore,Carnívoro,Carnívoro
+Zenaida macroura,Mourning Dove,MODO,Tórtola,R,Gran-Herb,Granivore,Gran-Herb,Granívoro
+Todus angustirostris ,Narrow-billed Tody,NBTO,Chi-cuí,E,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Colinus virginianus,Northern Bobwhite,NOBO,Codorniz,R,Gran-Herb,Granivore,Gran-Herb,Granívoro
+Circus cyaneus,Northern Harrier,NOHO,Gavilán de Ciénaga,M,Carnivore,Carnivore,Carnívoro,Carnívoro
+Jacana spinosa,Northern Jacana,NOJA,Gallito de Agua,R,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Nyctibius jamaicensis,Northern Potoo,NORP,"Don Juan Grande, Bruja",R,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Mimus polyglottos,Northern Mockingbird,NOMO,Ruiseñor,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Parkesia noveboracensis,Northern Waterthrush,NOWA,Cigüita del Agua,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Stelgidopteryx serripennis,Northern Rough-winged Swallow,NRWS,Golondrina Parda,M,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Setophaga americana,Northern Parula,NOPA,Ciguita Parula,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Pandion haliaetus,Osprey,OSPR,Guincho,M,Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Eupsittula nana,Olive-throated Parakeet,OTPA,Perico Amargo,I,Frugivore,Frugivore,Frugívoro,Frugívoro
+Seiurus aurocapilla,Ovenbird,OVEN,Cigüita Saltarina,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Corvus palmarum,Palm Crow,PACR,Cao,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Dulus dominicus,Palmchat,PALM,Cigüa Palmera,E,Frug-Invert,Frugivore,Frug-Invert,Frugívoro
+Setophaga palmarum,Palm Warbler,PAWA,Cigüita Palmar,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Podilymbus podiceps,Pied-billed Grebe,PBGR,,,,,,
+Falco peregrinus,Peregrine Falcon,PEFA,Halcón Peregrino,M,Carnivore,Carnivore,Carnívoro,Carnívoro
+Calidris melanotos,Pectoral Sandpiper,PESA,Playero Pectoral,M,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Margarops fuscatus,Pearly-eyed Thrasher,PETH,Zorzal Pardo,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Setophaga pinus chrysoleuca,Pine Warbler,PIWA,Cigüita del Pinar,R,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Patagioenas inornata,Plain Pigeon,PLAP,Paloma Ceniza,R,Gran-Frug,Frugivore,Gran-Frug,Frugívoro
+Setophaga discolor,Prairie Warbler,PRAW,Cigüita de los Prados,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Protonotaria citrea,Prothonotary Warbler,PROW,Cigüita Cabeza Amarilla,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Porphyrio martinica,Purple Gallinule,PUGA,Gallareta Azul,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Progne subis,Purple Martin,PUMA,,,,,,
+Pheucticus ludovicianus,Rose-breasted Grosbeak,RBGB,Piquigrueso Pechirrosado,R,Gran-Invert,Granivore,Gran-Invert,Granívoro
+Larus delawarensis,Ring-billed Gull,RBGU,Gaviota Piquianillada,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Phaethon aethereus,Red-billed Tropicbird,RBTR,Rabijunco Piquirojo,M,Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Regulus calendula,Ruby-crowned Kinglet,RCKI,Reyezuelo,V,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Egretta rufescens,Reddish Egret,REEG,Garza Rojiza,"R, M",Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Gallus gallus,Red Junglefowl,REJU,Gallo y Gallina,I,Omnivore,Omnivore,Omnívoro,Omnívoro
+Vireo olivaceus,Red-eyed Vireo,REVI,,,,,,
+Agapornis roseicollis,Rosy-faced Lovebird,RFLO,,,,,,
+Turdus plumbeus,Red-legged Thrush,RLTH,Chuá-Chuá,R,Omnivore,Omnivore,Omnívoro,Omnívoro
+Buteo jamaicensis,Red-tailed Hawk,RTHA,Guaraguao,R,Carnivore,Carnivore,Carnívoro,Carnívoro
+Columba livia,Rock Pigeon,ROPI,"Paloma Doméstica, Paloma Bravía",I,Gran-Frug,Granivore,Gran-Frug,Granívoro
+Platalea ajaja,Roseate Spoonbill,ROSP,Cuchareta,R,Filter-feeder,Filter-feeder,Filtrador,Filtrador
+Sterna dougallii,Roseate Tern,ROST,Charrán Rosado,M,Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Thalasseus maximus,Royal Tern,ROYT,Charrán Real,"R, M",Carnivore,Carnivore,Carnívoro,Carnívoro
+Myadestes genibarbis,Rufous-throated Solitaire,RTSO,Jilgero,R,Frug-Invert,Frugivore,Frug-Invert,Frugívoro
+Geotrygon montana,Ruddy Quail-Dove,RUQD,Perdiz,R,Gran-Frug,Granivore,Gran-Frug,Granívoro
+Arenaria interpres,Ruddy Turnstone,RUTU,Playero Turco,M,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Calidris alba,Sanderling,SAND,Playerito Blanquito,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Thalasseus sandvicensis,Sandwich Tern,SATE,Charrán Piconegro,"R, M",Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Crotophaga ani,Smooth-billed Ani,SBAN,Judío,R,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Limnodromus griseus,Short-billed Dowitcher,SBDO,Agujeta Piquicorta,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Lonchura punctulata,Scaly-breasted Munia,SBMU,Cigüita Come Arroz,I,Herb-Gran,Herbivore,Herb-Gran,Herbívoro
+Cacatua galerita,Sulphur-crested Cockatoo,SCCO,,,,,,
+Asio flammeus,Short-eared Owl,SEOW,Lechuza de Sabana,"R, M",Carnivore,Carnivore,Carnívoro,Carnívoro
+Charadrius semipalmatus,Semipalmated Plover,SEPL,Chorlito Semipalmado,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Calidris pusilla,Semipalmated Sandpiper,SESA,Playerito Semipalmado,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Molothrus bonariensis,Shiny Cowbird,SHCO,"Pájaro Vaquero, ",R,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Egretta thula,Snowy Egret,SNEG,Garza de Rizos,"R, M",Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Patagioenas squamosa,Scaly-naped Pigeon,SNPI,Paloma Torcaza,R,Gran-Frug,Frugivore,Gran-Frug,Frugívoro
+Charadrius nivosus,Snowy Plover,SNPL,Chorlito Niveo,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Tringa solitaria,Solitary Sandpiper,SOSA,Playero Solitario,M,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Onychoprion fuscatus,Sooty Tern,SOTE,Charrán Oscuro,"R, M",Piscivore,Piscivore,Piscívoro,Piscívoro
+Actitis macularius,Spotted Sandpiper,SPSA,Playerito Manchado,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Accipiter striatus,Sharp-shinned Hawk,SSHA,Guaraguaíto de Sierra,R,Carnivore,Carnivore,Carnívoro,Carnívoro
+Myiarchus stolidus,Stolid Flycatcher,STOF,Manuelito,E,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Asio stygius,Stygian Owl,STOW,"Cicuapa, Lechuza Orejita",R,Carnivore,Carnivore,Carnívoro,Carnívoro
+Calidris himantopus,Stilt Sandpiper,STSA,Playero Zancudo,M,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Tachycineta bicolor,Tree Swallow,TRES,Golondrina de Árboles,M,Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Egretta tricolor,Tricolored Heron,TRHE,"Garza Pechiblanco, Garza Tricolor","R, M",Pisc-Carn,Piscivore,Pisc-Carn,Piscívoro
+Cathartes aura,Turkey Vulture,TUVU,,,,,,
+Empidonax (sp),Unidentified Empidonax,UNEM,,,,,,
+Mellisuga minima,Vervain Hummingbird,VEHU,Zumbadorcito,E,Nectar-Invert,Nectarivore,Nectar-Invert,Nectarívoro
+Ploceus cucullatus,Village Weaver,VIWE,"Madam Sagá, Chichiguao",I,Gran-Herb,Granivore,Gran-Herb,Granívoro
+Patagioenas leucocephala,White-crowned Pigeon,WCPI,Paloma Coronita,"R, M",Frug-Herb,Frugivore,Frug-Herb,Frugívoro
+Streptoprocne zonaris,White-collared Swift,WCSW,Vencejo de Collar,"R, M",Invert-aerial,Invertivore,Invert-aerio,Invertívoro
+Calyptophilus tertius,Western Chat-Tanager,WECT,Chirrí de Bahoruco,E,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Calidris mauri,Western Sandpiper,WESA,Playero Occidental,M,Invertivore,Invertivore,Invertívoro,Invertívoro
+Vireo griseus,White-eyed Vireo,WEVI,Vireo de Ojo Blanco,M ,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Helmitheros vermivorus,Worm-eating Warbler,WEWA,Cigüíta Cabeza Rayada,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Geotrygon leucometopia,White-fronted Quail-Dove,WFRQ,Perdíz Coquito Blanco,M ,Gran-Frug,Frugivore,Gran-Frug,Frugívoro
+Eudocimus albus,White Ibis,WHIB,Coco Blanco,R,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Numenius phaeopus,Whimbrel,WHIM,Playero Picocorvo,M,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Tringa semipalmatus,Willet,WILL,Chorlo,M,Carnivore,Carnivore,Carnívoro,Carnívoro
+Charadrius wilsonia,Wilson's Plover,WIPL,Chorlito de Wilson,"R, M",Invertivore,Invertivore,Invertívoro,Invertívoro
+Gallinago delicata,Wilson's Snipe,WISN,Cigüita de Wilson,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Cardellina pusilla,Wilson's Warbler,WIWA,Cigüita de Wilson,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Dendrocygna arborea,West Indian Whistling-Duck,WIWD,Yaguaza,R,Frug-Gran,Frugivore,Frug-Gran,Frugívoro
+Corvus leucognaphalus ,White-necked Crow,WNCR,Cuervo,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Calidris fuscicollis,White-rumped Sandpiper,WRSA,Playero de Rabadilla Blanca,M,Invert-Gran,Invertivore,Invert-Gran,Invertívoro
+Phaethon lepturus,White-tailed Tropicbird,WTTR,Rabijunco Coliblanco,"R, M",Pisc-Invert,Piscivore,Pisc-Invert,Piscívoro
+Zenaida asiatica,White-winged Dove,WWDO,Aliblanca,R,Gran-Frug,Granivore,Gran-Frug,Granívoro
+Xenoligea montana ,White-winged Warbler,WWWA,Cigüita Aliblanca,"R, M",Invert-glean,Invertivore,Invert-busc,Invertívoro
+Coccyzus americanus,Yellow-billed Cuckoo,YBCU,Pájaro Bobo Pico Amarillo,M,Invert-Carn,Invertivore,Invert-Carn,Invertívoro
+Sphyrapicus varius,Yellow-bellied Sapsucker,YBSA,Carpintero de Paso,M,Omnivore,Omnivore,Omnívoro,Omnívoro
+Nyctanassa violacea,Yellow-crowned Night-Heron,YCNH,Rey Congo,"R, M",Carn-Pisc,Carnivore,Carn-Pisc,Carnívoro
+Setophaga petechia,Yellow Warbler,YEWA,Canario de Manglar,"R, M",Invert-glean,Invertivore,Invert-busc,Invertívoro
+Tiaris olivaceus,Yellow-faced Grassquit,YFGR,Cigüita de Hierba,R,Herb-Invert,Herbivore,Herb-Invert,Herbívoro
+Setophaga coronata,Yellow-rumped Warbler,YRWA,Cigüita Mirta,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Vireo flavifrons,Yellow-throated Vireo,YTVI,Vireo Garganta Amarilla,M,Invert-Frug,Invertivore,Invert-Frug,Invertívoro
+Setophaga dominica,Yellow-throated Warbler,YTWA,Cigüita Garganta Amarilla,M,Invert-glean,Invertivore,Invert-busc,Invertívoro
+Zenaida aurita,Zenaida Dove,ZEND,Rolón,R,Gran-Frug,Granivore,Gran-Frug,Granívoro
