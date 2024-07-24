@@ -1,0 +1,604 @@
+---
+title: "MODIS Data Exploration"
+author: "Matt Fuller"
+date: "2024-01-12"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+library(sf)
+library(terra)
+library(tidyverse)
+library(readxl)
+library(kableExtra)
+library(flextable)
+library(leaflet)
+library(htmltools)
+library(viridis)
+library(DT)
+library(MODISTools)
+library(zoo)
+library(forecast)
+
+reflat <- 18.47169 
+reflong <- -69.89199
+
+knitr::opts_chunk$set(echo = FALSE)
+options(knitr.kable.NA = '')
+knitr::opts_current$get('Table')
+```
+
+
+<br>  
+
+# Sector geospatial data  
+
+## Sector polygon data  
+
+Read in sector polygons for spatial reference of MODIS data.  
+
+```{r message = FALSE}
+sector_sf <- st_read(dsn = "../data/geospatial/SD_sector_polygons.shp") |>
+  select(SectorID, SectorName) |>  # select only naming fields from input
+  st_zm() |>  # remove 'Z' dimension from input since it is unnecessary
+  st_transform(4326)  # transform to CRS leaflet maps use by default
+```
+
+
+## Sector Map  
+
+Set up basemap tiles for various backgrounds when viewing sector polygons.  
+
+```{r warning = FALSE}
+# Basemap set up  
+basemap <- leaflet() |>
+  addProviderTiles("OpenStreetMap.Mapnik", group = "OpenStreetMap.Mapnik") |>
+  addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") |>
+  # addProviderTiles("Esri.WorldPhysical", group = "Esri.WorldPhysical") |>
+  addProviderTiles("Esri.WorldImagery", group = "Esri.WorldImagery") |>  
+  # add a layers control
+  addLayersControl(baseGroups = c("OpenStreetMap.Mapnik", 
+                                  "Esri.WorldTopoMap",
+                                  # "Esri.WorldPhysical",
+                                  "Esri.WorldImagery"),
+  # position it on the topleft
+  position = "topleft")
+```
+
+
+Add polygons to basemap and plot for visualization.  
+
+```{r}
+# create palette for sector markers
+sector_cols <- colorFactor(palette = viridis(4, option = "A", end = 0.85), 
+                           levels = factor(sector_sf$SectorID,
+                                           levels = c("CN","GA","SC","ZC")) )
+(SD_plot_leaflet <- basemap |>
+    addPolygons(data = sector_sf, 
+                popup = ~SectorName,
+                opacity = 0.8,
+                color = ~sector_cols(SectorID)) 
+  )
+```
+
+
+<br>
+
+# MODIS product exploration  
+
+## Product availability  
+
+View and search products available from MODIS satellite sensors.  
+
+```{r}
+MODIS_prods <- mt_products()
+
+DT::datatable(MODIS_prods, rownames = FALSE, 
+              colnames = c("MODIS Product Code" = "product", "Description" = "description",
+                           "Image Frequency" = "frequency", 
+                           "Resolution (m)" = "resolution_meters"),
+              caption = "Table 1. List of MODIS satellite products and their details.")
+
+```
+<br>
+
+Looks like the MODIS products of interest are:  
+Air Temperature  
+1. MOD11A2: MODIS/Terra Land Surface Temperature and Emissivity (LST) 8-Day L3 Global 1 km SIN Grid  
+2. MOD21A2: MODIS/Terra Land Surface Temperature/3-Band Emissivity (LSTE) 8-Day L3 Global 1 km SIN Grid
+
+MOD11A2 filters out extreme high temperature values that MOD21A2 does not (see: https://lpdaac.usgs.gov/products/mod21a2v061/). We will use the MOD11A2 data in further temperature analyses.
+
+Vegetation  
+1. MOD13Q1: MODIS/Terra Vegetation Indices (NDVI/EVI) 16-Day L3 Global 250m SIN Grid  
+2. MCD15A3H: MODIS/Terra+Aqua Leaf Area Index/FPAR (LAI/FPAR) 4-Day L4 Global 500 m SIN Grid  
+
+## MOD11A2: Land Surface Temperature  
+
+```{r}
+bnd_MOD11A2 <- mt_bands(product = "MOD11A2")
+```
+
+```{r}
+dates_MOD11A2 <- mt_dates(product = "MOD11A2", lat = reflat, lon = reflong)
+```
+
+sd_LST
+
+```{r cache = TRUE, message=FALSE}
+sd_LST_day <- mt_subset(product = "MOD11A2",
+                    lat = reflat,
+                    lon =  reflong,
+                    band = "LST_Day_1km",
+                    start = "2000-01-01",
+                    end = "2024-01-01",
+                    km_lr = 15,
+                    km_ab = 5,
+                    site_name = "SantoDomingo",
+                    progress = TRUE )
+
+sd_LST_nght <- mt_subset(product = "MOD11A2",
+                    lat = reflat,
+                    lon =  reflong,
+                    band = "LST_Night_1km",
+                    start = "2000-01-01",
+                    end = "2024-01-01",
+                    km_lr = 15,
+                    km_ab = 5,
+                    site_name = "SantoDomingo",
+                    progress = TRUE )
+
+```
+
+
+```{r}
+# save raw download data
+saveRDS(sd_LST_day, file = "../data/RDS/modis_airtemp_day_raw.RDS")
+saveRDS(sd_LST_nght, file = "../data/RDS/modis_airtemp_night_raw.RDS")
+```
+
+
+
+
+join the night and day data.
+
+```{r}
+sd_LST <- sd_LST_day |>
+  bind_rows(sd_LST_nght) |>
+  mutate(kelvin = value * 0.02) |>
+  mutate(celcius = if_else(value == 0,-999, kelvin-273.15) ) |>
+  filter(celcius != -999)
+```
+
+
+```{r}
+sd_LST_date_vec <- tibble(cal_date = unique(date(sd_LST_day$calendar_date)) ) |>
+  arrange(cal_date)
+sd_LST_summary <- sd_LST |>
+  reframe(.by = c("band", "calendar_date"), 
+          temp_c = mean(celcius)) |>
+  mutate(cal_date = date(calendar_date)) |>
+  #filter out days with only day or night temps due to clouds or other issues
+  group_by(cal_date) |>
+  mutate(n_count = n()) |> ungroup() |>
+  filter(n_count == 2) |>
+  # calculate the "mean daily temp" using average btwn day and night temps
+  pivot_wider(id_cols = cal_date, names_from = band, values_from = temp_c) |>
+  rowwise() |>
+  mutate(daily_TC = mean(LST_Day_1km, LST_Night_1km)) |> ungroup() |>
+  select(cal_date, daily_TC) |>
+  right_join(sd_LST_date_vec, by = "cal_date")
+```
+
+
+```{r}
+ggplot(data = sd_LST_summary,
+       aes(x = cal_date, y = daily_TC)) +
+  # geom_point() + 
+  geom_line() +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "Date", y = "Temperature (°C)")
+```
+
+Condense temperature time series from every 8-days to mean monthly values for time series analysis and decomposition.  
+
+```{r}
+temp_zoo <- zoo(x = sd_LST_summary$daily_TC, 
+               order.by = sd_LST_summary$cal_date)
+plot.zoo(temp_zoo)
+
+```
+
+```{r}
+temp_zoo_naapprox <- na.approx(temp_zoo) |> fortify.zoo() |>
+  rename(cal_date = "Index", temp_C = "na.approx(temp_zoo)")
+  
+
+temp_month_df <- temp_zoo_naapprox |>
+  mutate(cal_year = year(cal_date),
+         cal_month = month(cal_date)) |>
+  reframe(.by = c("cal_year", "cal_month"),
+          avg_month_TC = mean(temp_C))
+
+temp_month_ts <- ts(temp_month_df$avg_month_TC, frequency = 12,
+                    start = c(2000,2), end = c(2024, 1))
+```
+
+
+
+
+```{r}
+# trend analysis
+temp_month_trend <- ma(temp_month_ts, order = 12, centre = TRUE)
+plot.ts(temp_month_ts)
+lines(temp_month_trend, col = "red")
+```
+
+```{r}
+# detrend the time series for seasonality 
+temp_month_detrend <- temp_month_ts - temp_month_trend
+plot(as.ts(temp_month_detrend))
+```
+
+
+```{r}
+# mean seasonality
+temp_month_mtxseas <- t(matrix(data = temp_month_detrend, nrow = 12))
+temp_month_avgseas <- colMeans(temp_month_mtxseas, na.rm = TRUE)
+plot(as.ts(rep(temp_month_avgseas,24)))
+```
+
+```{r}
+# examine random noise left over
+temp_month_random <- temp_month_ts - temp_month_trend - temp_month_avgseas
+plot(as.ts(temp_month_random))
+```
+
+```{r}
+# nearly identical when reconstructing from the various components of the ts
+plot.ts(temp_month_ts)
+plot(as.ts((temp_month_trend + temp_month_avgseas + temp_month_random)))
+```
+
+
+```{r}
+# use decompose function for trend analysis
+temp_month_decomp <- decompose(temp_month_ts, type = "additive")
+
+plot(as.ts(temp_month_decomp$seasonal))
+plot(as.ts(temp_month_decomp$trend))
+plot(as.ts(temp_month_decomp$random))
+plot(temp_month_decomp)
+```
+
+```{r}
+# save temperature data for city as a whole
+saveRDS(temp_zoo_naapprox, file = "../data/RDS/modis_airtempC_8day.RDS")
+saveRDS(temp_month_ts, file = "../data/RDS/modis_airtempC_monthly_ts.RDS")
+```
+
+
+
+## MOD13Q1: NDVI/EVI    
+
+MOD13Q1: MODIS/Terra Vegetation Indices (NDVI/EVI) 16-Day L3 Global 250m SIN Grid  
+
+```{r}
+bnd_MOD13Q1 <- mt_bands(product = "MOD13Q1")
+```
+
+```{r}
+dates_MOD13Q1 <- mt_dates(product = "MOD13Q1", lat = reflat, lon = reflong)
+```
+
+
+
+```{r cache = TRUE, message=FALSE}
+sd_NDVI_raw <- mt_subset(product = "MOD13Q1",
+                    lat = reflat,
+                    lon =  reflong,
+                    band = "250m_16_days_NDVI",
+                    start = "2000-01-01",
+                    end = "2024-01-01",
+                    km_lr = 5,
+                    km_ab = 5,
+                    site_name = "SantoDomingo",
+                    progress = TRUE )
+
+sd_EVI_raw <- mt_subset(product = "MOD13Q1",
+                    lat = reflat,
+                    lon =  reflong,
+                    band = "250m_16_days_EVI",
+                    start = "2000-01-01",
+                    end = "2024-01-01",
+                    km_lr = 5,
+                    km_ab = 5,
+                    site_name = "SantoDomingo",
+                    progress = TRUE )
+
+```
+
+
+```{r}
+# save raw download data
+saveRDS(sd_NDVI_raw, file = "../data/RDS/modis_NDVI_raw.RDS")
+saveRDS(sd_EVI_raw, file = "../data/RDS/modis_EVI_raw.RDS")
+```
+
+
+
+```{r}
+# use scale factors to revert to actual NDVI/EVI values
+sd_NDVI <- sd_NDVI_raw |>
+  mutate(NDVI = value * 0.0001) |>
+  mutate(cal_date = date(calendar_date))
+sd_EVI <- sd_EVI_raw |>
+  mutate(EVI = value * 0.0001)  |>
+  mutate(cal_date = date(calendar_date))
+```
+
+
+```{r}
+sd_NDVI_summary <- sd_NDVI |>
+  reframe(.by = c("calendar_date"), 
+          mean_val = mean(NDVI)) |>
+  mutate(cal_date = date(calendar_date), 
+         parameter = "NDVI")  
+
+sd_EVI_summary <- sd_EVI |>
+  reframe(.by = c("calendar_date"), 
+          mean_val = mean(EVI)) |>
+  mutate(cal_date = date(calendar_date), 
+         parameter = "EVI") 
+
+sd_NDVIEVI_sum_df <- bind_rows(sd_NDVI_summary,sd_EVI_summary)
+```
+
+
+
+```{r}
+NDVI_zoo <- zoo(x = sd_NDVI_summary$mean_val, 
+               order.by = sd_NDVI_summary$cal_date)
+
+NDVI_zoo_naapprox <- na.approx(NDVI_zoo) |> fortify.zoo() |>
+  rename(cal_date = "Index", mean_val = "na.approx(NDVI_zoo)")
+  
+
+NDVI_month_df <- NDVI_zoo_naapprox |>
+  mutate(cal_year = year(cal_date),
+         cal_month = month(cal_date)) |>
+  reframe(.by = c("cal_year", "cal_month"),
+          avg_month_NDVI = mean(mean_val)) |>
+  mutate(cal_date = date(paste0(cal_year,"-",
+                                str_pad(cal_month, width=2, side="left", pad="0"),
+                                "-15")))
+
+NDVI_month_ts <- ts(NDVI_month_df$avg_month_NDVI, frequency = 12,
+                    start = c(2000,2), end = c(2024, 1))
+```
+
+
+
+
+```{r}
+EVI_zoo <- zoo(x = sd_EVI_summary$mean_val, 
+               order.by = sd_EVI_summary$cal_date)
+
+EVI_zoo_naapprox <- na.approx(EVI_zoo) |> fortify.zoo() |>
+  rename(cal_date = "Index", mean_val = "na.approx(EVI_zoo)")
+  
+
+EVI_month_df <- EVI_zoo_naapprox |>
+  mutate(cal_year = year(cal_date),
+         cal_month = month(cal_date)) |>
+  reframe(.by = c("cal_year", "cal_month"),
+          avg_month_EVI = mean(mean_val)) |>
+  mutate(cal_date = date(paste0(cal_year,"-",
+                                str_pad(cal_month, width=2, side="left", pad="0"),
+                                "-15")))
+
+EVI_month_ts <- ts(EVI_month_df$avg_month_EVI, frequency = 12,
+                    start = c(2000,2), end = c(2024, 1))
+```
+
+
+
+
+```{r}
+ggplot(data = sd_NDVI_summary,
+       aes(x = cal_date, y = mean_val)) +
+  geom_line() +
+  geom_line(data = NDVI_month_df,
+            aes(x = cal_date, y = avg_month_NDVI), color = "red") +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "Date", y = "NDVI", title = "Normalized Difference Vegetation Index (NDVI)")
+```
+
+
+
+```{r}
+ggplot(data = sd_EVI_summary,
+       aes(x = cal_date, y = mean_val)) +
+  geom_line(data = EVI_month_df,
+            aes(x = cal_date, y = avg_month_EVI), color = "red") +
+  geom_line() +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "Date", y = "EVI", title = "Enhanced Vegetation Index (EVI)")
+```
+
+
+```{r}
+# save NDVI/EVI data for city as a whole
+saveRDS(NDVI_zoo_naapprox, file = "../data/RDS/modis_NDVI_16day.RDS")
+saveRDS(NDVI_month_ts, file = "../data/RDS/modis_NDVI_monthly_ts.RDS")
+
+saveRDS(EVI_zoo_naapprox, file = "../data/RDS/modis_EVI_16day.RDS")
+saveRDS(EVI_month_ts, file = "../data/RDS/modis_EVI_monthly_ts.RDS")
+```
+
+
+
+
+## MCD15A3H: LAI/FPAR    
+
+MCD15A3H: MODIS/Terra+Aqua Leaf Area Index/FPAR (LAI/FPAR) 4-Day L4 Global 500 m SIN Grid
+
+```{r}
+bnd_MCD15A3H <- mt_bands(product = "MCD15A3H")
+```
+
+```{r}
+dates_MCD15A3H <- mt_dates(product = "MCD15A3H", lat = reflat, lon = reflong)
+```
+
+
+
+```{r cache = TRUE, message=FALSE}
+sd_LAI_raw <- mt_subset(product = "MCD15A3H",
+                    lat = reflat,
+                    lon =  reflong,
+                    band = "Lai_500m",
+                    start = "2000-01-01",
+                    end = "2024-01-01",
+                    km_lr = 5,
+                    km_ab = 5,
+                    site_name = "SantoDomingo",
+                    progress = TRUE )
+
+sd_FPAR_raw <- mt_subset(product = "MCD15A3H",
+                    lat = reflat,
+                    lon =  reflong,
+                    band = "Fpar_500m",
+                    start = "2000-01-01",
+                    end = "2024-01-01",
+                    km_lr = 5,
+                    km_ab = 5,
+                    site_name = "SantoDomingo",
+                    progress = TRUE )
+
+```
+
+```{r}
+# save raw download data
+saveRDS(sd_LAI_raw, file = "../data/RDS/modis_LAI_raw.RDS")
+saveRDS(sd_FPAR_raw, file = "../data/RDS/modis_FPAR_raw.RDS")
+```
+
+
+
+```{r}
+# use scale factors to revert to actual NDVI/EVI values
+sd_LAI <- sd_LAI_raw |>
+  mutate(LAI = value * 0.1) |>
+  mutate(cal_date = date(calendar_date))
+sd_FPAR <- sd_FPAR_raw |>
+  mutate(FPAR = value * 0.01)  |>
+  mutate(cal_date = date(calendar_date))
+```
+
+
+```{r}
+sd_LAI_summary <- sd_LAI |>
+  reframe(.by = c("calendar_date"), 
+          mean_val = mean(LAI)) |>
+  mutate(cal_date = date(calendar_date), 
+         parameter = "LAI")  
+
+sd_FPAR_summary <- sd_FPAR |>
+  reframe(.by = c("calendar_date"), 
+          mean_val = mean(FPAR)) |>
+  mutate(cal_date = date(calendar_date), 
+         parameter = "FPAR") 
+
+sd_LAIFPAR_sum_df <- bind_rows(sd_LAI_summary,sd_FPAR_summary)
+```
+
+```{r}
+LAI_zoo <- zoo(x = sd_LAI_summary$mean_val, 
+               order.by = sd_LAI_summary$cal_date)
+
+LAI_zoo_naapprox <- na.approx(LAI_zoo) |> fortify.zoo() |>
+  rename(cal_date = "Index", mean_val = "na.approx(LAI_zoo)")
+  
+
+LAI_month_df <- LAI_zoo_naapprox |>
+  mutate(cal_year = year(cal_date),
+         cal_month = month(cal_date)) |>
+  reframe(.by = c("cal_year", "cal_month"),
+          avg_month_LAI = mean(mean_val)) |>
+  mutate(cal_date = date(paste0(cal_year,"-",
+                                str_pad(cal_month, width=2, side="left", pad="0"),
+                                "-15")))
+
+LAI_month_ts <- ts(LAI_month_df$avg_month_LAI, frequency = 12,
+                    start = c(2000,2), end = c(2024, 1))
+```
+
+
+```{r}
+FPAR_zoo <- zoo(x = sd_FPAR_summary$mean_val, 
+               order.by = sd_FPAR_summary$cal_date)
+
+FPAR_zoo_naapprox <- na.approx(FPAR_zoo) |> fortify.zoo() |>
+  rename(cal_date = "Index", mean_val = "na.approx(FPAR_zoo)")
+  
+
+FPAR_month_df <- FPAR_zoo_naapprox |>
+  mutate(cal_year = year(cal_date),
+         cal_month = month(cal_date)) |>
+  reframe(.by = c("cal_year", "cal_month"),
+          avg_month_FPAR = mean(mean_val)) |>
+  mutate(cal_date = date(paste0(cal_year,"-",
+                                str_pad(cal_month, width=2, side="left", pad="0"),
+                                "-15")))
+
+FPAR_month_ts <- ts(FPAR_month_df$avg_month_FPAR, frequency = 12,
+                    start = c(2000,2), end = c(2024, 1))
+```
+
+
+```{r}
+ggplot(data = sd_LAI_summary,
+       aes(x = cal_date, y = mean_val)) +
+  geom_line() +
+  geom_smooth() +
+  geom_line(data = LAI_month_df,
+            aes(x = cal_date, y = avg_month_LAI), color = "red") +
+  geom_smooth(data = LAI_month_df,
+            aes(x = cal_date, y = avg_month_LAI), color = 'yellow') +
+  theme_bw() +
+  labs(x = "Date", y = "LAI (m^2^/m^2^)", title = "Leaf area index (LAI)")
+```
+
+
+
+```{r}
+ggplot(data = sd_FPAR_summary,
+       aes(x = cal_date, y = mean_val)) +
+  geom_line() +
+  geom_line(data = FPAR_month_df,
+            aes(x = cal_date, y = avg_month_FPAR), color = "red") +
+  geom_smooth() +
+  theme_bw() +
+  labs(x = "Date", y = "FPAR", title = "Fraction of photosynthetically active radiation (FPAR)")
+```
+
+
+
+```{r}
+# save LAI/FPAR data for city as a whole
+saveRDS(LAI_zoo_naapprox, file = "../data/RDS/modis_LAI_4day.RDS")
+saveRDS(LAI_month_ts, file = "../data/RDS/modis_LAI_monthly_ts.RDS")
+
+saveRDS(FPAR_zoo_naapprox, file = "../data/RDS/modis_FPAR_4day.RDS")
+saveRDS(FPAR_month_ts, file = "../data/RDS/modis_FPAR_monthly_ts.RDS")
+```
+
+

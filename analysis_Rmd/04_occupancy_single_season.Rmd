@@ -1,0 +1,396 @@
+---
+title: "Single-Season Occupancy Modeling"
+author: "Matt Fuller"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+library(sf)
+library(terra)
+library(tidyverse)
+library(ggfortify)
+library(ggrepel)
+library(readxl)
+library(kableExtra)
+library(flextable)
+library(leaflet)
+library(htmltools)
+library(viridis)
+library(DT)
+library(iNEXT)
+library(unmarked)
+library(spOccupancy)
+
+# season function for assigning bird season basd on date of point count
+season_fnx <- function(smpl_date) {
+  season <- if_else(month(smpl_date)  %in% 6:8, "breeding",
+                          if_else(month(smpl_date)  %in% 9:11, "fallmigr",
+                                  if_else(month(smpl_date) %in% c(12,1,2), "ovrwintr", 
+                                          if_else(month(smpl_date) %in% 3:5, "sprgmigr", NA ) ) ) )
+}
+
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '')
+knitr::opts_current$get('Table')
+```
+
+
+<br>   
+
+# Read in clean bird data  
+
+In addition to reading in the clean bird data, we removed the bird sites that are not paired with i-Tree plots below.  
+
+```{r message=FALSE}
+birditree_sitejoin_key <- readRDS(file = "../data/iTree_Bird_site_key.RDS")
+
+# load raw point count data
+bird_ptct_data_raw <- readRDS(file = "../data/RDS/bird_pointcount_data.RDS")
+bird_ptct_data <- filter(bird_ptct_data_raw, !(SiteID %in% c(paste0("ZCA0",1:7), 
+                                                             "SC15", "GA999") ) )
+
+# load point count abundance data
+bird_abund_71wFO <- 
+  readRDS(file = "../data/RDS/bird_abundace_data_71sites_wFO.RDS")
+bird_abund_71woFO <- 
+  readRDS(file = "../data/RDS/bird_abundace_data_71sites_woFO.RDS")
+bird_abund_60wFO <- 
+  readRDS(file = "../data/RDS/bird_abundance_data_60itreesites_wFO.RDS")
+bird_abund_60woFO <- 
+  readRDS(file = "../data/RDS/bird_abundance_data_60itreesites_woFO.RDS")
+
+
+# load site visit data 
+bird_site_data_raw <- readRDS(file = "../data/RDS/bird_sitevisit_data.RDS")
+bird_site_data <- filter(bird_site_data_raw, !(SiteID %in% c(paste0("ZCA0",1:7),
+                                                             "SC15", "GA999") ) )
+
+# load merged data 
+bird_ptctsite_data_raw <- 
+  readRDS(file = "../data/RDS/bird_merged_pointcount_and_sitevisit_data.RDS")
+bird_ptctsite_data <- 
+  filter(bird_ptctsite_data_raw, !(SiteID %in% c(paste0("ZCA0",1:7), 
+                                                 "SC15", "GA999") ) )
+
+# spatial data for sites
+bird_siteID_sf <- birditree_sitejoin_key |>
+  filter(!is.na(PlotNum)) |>
+  sf::st_as_sf(coords = c("long", "lat"))
+```
+
+# Read in i-Tree Data  
+
+Data were previously cleaned and organized into the below data files that are read in. See the "00_data_cleaning.Rmd" script for details on modifications made to the original data files. In addition to these cleaning steps, below we filter to just the i-Tree plots that are paired with bird sites for an initial data exploration and summary. These i-Tree plot variables can be used as covariates in the occupancy modeling (either in occupancy or detection submodels).     
+
+```{r}
+itree_plot_df <- readRDS(file = "../data/itree/itree_plot_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+itree_tree_df <- readRDS(file = "../data/itree/itree_tree_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+itree_shrub_df <- readRDS(file = "../data/itree/itree_shrub_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+itree_benefits_df <- 
+  readRDS(file = "../data/itree/itree_benefits_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+```
+
+
+# Occupancy modeling  
+
+
+## General resources for occupancy modeling in R  
+
+Martha Zillig provides a nice and accessible introduction to occupancy modeling here:  
+
+https://marthazillig.github.io/2019-12-05-Introduction-to-Occupancy-Models/  
+
+
+eBird has a best practices document that covers some occupancy modeling using eBird data. See chapter 5 for occupancy modeling with eBird data for additional background and explanation of data formatting for this type of analysis using 'unmarked'.  
+
+https://ebird.github.io/ebird-best-practices/  
+https://cornelllabofornithology.github.io/ebird-best-practices/occupancy.html
+
+
+<br>
+
+## Occupancy modeling with 'unmarked' R package  
+
+Initial exploration of occupancy modeling using the "unmarked" R package (https://cran.r-project.org/web/packages/unmarked/index.html) that implements both frequentist and Bayesian methods of analysis. We use the `occu()` function from unmarked for this initial occupancy analysis.    
+
+
+`occu()` fits the standard occupancy model based on zero-inflated binomial models (MacKenzie et al. 2002, MacKenzie et al. 2006, Royle and Dorazio 2008). The occupancy state process ($z_{i}$) of site $i$ is modeled as  
+
+\begin{equation}  
+z_{i} ∼ Bernoulli(ψ_{i})  
+\end{equation}  
+
+The observation process is modeled as  
+
+\begin{equation}  
+y_{ij}|z_{i} ∼ Bernoulli(z_{i}p_{ij})  
+\end{equation}  
+
+By default, covariates of $ψ_{i}$ and $p_{ij}$ are modeled using the logit link according to the formula argument. The formula is a double right-hand sided formula like *~ detform ~ occform* where detform is a formula for the detection process and occform is a formula for the partially observed occupancy state. See formula for details on constructing model formulae in R.  
+
+When linkPsi = "cloglog", the complimentary log-log link function is used for $psi$ instead of the logit link. The cloglog link relates occupancy probability to the intensity parameter of an underlying Poisson process (Kery and Royle 2016). Thus, if abundance at a site is can be modeled as 
+$N_{i}Poisson(λ_{i})$, where $log(λ_{i}) = \alpha + \beta * x$, then presence/absence data at the site can be modeled as $Z_{i}Binomial(ψ_{i})$ where $cloglog(ψ_{i})= \alpha + \beta * x$.  
+
+
+**Citations:**  
+Kery, Marc, and J. Andrew Royle. 2016. Applied Hierarchical Modeling in Ecology, Volume 1. Academic Press.  
+
+MacKenzie, D. I., J. D. Nichols, G. B. Lachman, S. Droege, J. Andrew Royle, and C. A. Langtimm. 2002. Estimating Site Occupancy Rates When Detection Probabilities Are Less Than One. Ecology 83: 2248-2255.  
+
+MacKenzie, D. I. et al. 2006. Occupancy Estimation and Modeling. Amsterdam: Academic Press.  
+
+Royle, J. A. and R. Dorazio. 2008. Hierarchical Modeling and Inference in Ecology. Academic Press.  
+
+<br>  
+
+Prepare occupancy modeling input data using 'unmarked' data input formats. Start by organizing the data into distinct "main visits" with "subintervals" for each main visit. These can then be aligned across sites regardless of visitation date. It allows us to organize point counts into "comparable" surveys as the "first main visit" per season along with the subintervals associated with each main visit. We will code these visits as "V##L" where "V" represents a "visit", ## is a two-digit integer (zero-padded for 1-9) for each main visit to the site that can extend from 01-99, and "L" indicates the letter of either "A", "B", or "C" to indicate if it comes from the 1st, 2nd, or 3rd subinterval from the main visit point count. We designate this data input format as the "nested subinterval" data set since we will model the three subintervals as random effects nested within the main visit. To start, though, we will build a data input that combines the three subintervals using only the max abundance count for a given species during the three subintervals. The visit code reduces to just "V##" in this case and we designate this data set format as the "combined subinterval" data set.    
+
+
+### Single-season occupancy model: combined subinterval (fit by season in each year)  
+
+#### Data organization  
+
+Grab the point count abundance data that has already selected the maximum count for each species among the three subintervals for each point count visit. Modify this data frame by adding distinct site visit code (V##) for each site visit (column: "visit_id") and the number of times a site was visited in total (column: visit_n). 
+
+```{r cache = TRUE}
+# establish the naming convention for different point count dates for each site
+unmarked_visitID_alldates_abund_60woFO_key <- bird_abund_60woFO |>
+  select(SiteID, Date) |> distinct() |>
+  mutate(.by = SiteID,
+         visit_ID = paste0("V", str_pad(row_number(), width = 2, 
+                                        side = "left", pad = 0) ),
+         visit_n = n()) |>
+  mutate(visitid = factor(visit_ID))
+```
+
+We can also extract the total number of site visits for each SiteID and keep in a data frame.  
+
+```{r}
+# number of times each site was visited
+site_visit_n <- unmarked_visitID_alldates_abund_60woFO_key |>
+  summarize(.by = SiteID, visit_n = n() )
+```
+
+
+Joining the original abundance data back to the data frame holding our visit codes adds those to the original data. In addition, we also assign factor types to a few variables and extract date elements that are necessary for unmarked input formats.  
+
+```{r}
+unmarked_visitID_alldates_abund_60woFO_df <- bird_abund_60woFO |>
+  left_join(unmarked_visitID_alldates_abund_60woFO_key, 
+            by = c("SiteID", "Date"))  |>
+  select(-smpl_mon, -visit_ID) |>
+  mutate(season = factor(season, 
+                         levels = c("sprgmigr","breeding","fallmigr","ovrwintr")),
+         sppcode = factor(SppAlphaCode),
+         detection = if_else(abund_ptct > 0, 1, 0),
+         smpl_year = lubridate::year(Date),
+         julian_date = lubridate::yday(Date)) |>
+  select(SiteID, Date, smpl_year, julian_date, visitid, visit_n, season, sppcode, 
+         ptct_maxcnt = abund_ptct, detection) 
+```
+
+We create a data frame that holds all dates for every site to back to original abundance data later so that the non-detect point counts are also included in the analysis as zeros.  
+
+```{r}
+# list of SiteIDs and their dates for backfilling data joins by species to note non-detects
+alldates_abund_60woFO_key <- unmarked_visitID_alldates_abund_60woFO_df |>
+  select(SiteID, Date, smpl_year, julian_date, visitid, visit_n, season) |> 
+  distinct()
+```
+
+Split the primary data frame into separate data frames for each species to evaluate their occupancy and detectability individually across any grouping factor. The split data frame is organized into a list of data frames each named by the 4-letter alpha species code used to group the split by.  
+
+```{r}
+# create a list of data frames that are named by the bird species alpha code
+unmarked_sppcode_df_ls <- unmarked_visitID_alldates_abund_60woFO_df |>
+  group_by(sppcode) |> group_split()
+unmarked_sppcode_df_ls_key <- unmarked_visitID_alldates_abund_60woFO_df |>
+  group_by(sppcode) |> group_keys()
+names(unmarked_sppcode_df_ls) <- unmarked_sppcode_df_ls_key$sppcode
+```
+
+<br>  
+
+#### Model fitting  
+
+
+To fit an `unmarked::occu()` model we need to use the unmarkedFrameOccu() function to properly format the input data. This requires three elements:
+
+**y:** A data.frame of presence-absence records. Rows are sites, columns are repeat visits.  
+
+**siteCovs:** A data.frame of the site-level covariates. These are things that don’t change between visits like elevation, annual rainfall, distance from roads, etc.. One column per covariate  
+
+**obsCovs:** A list of data.frames for the observation-level covariates. Each covariate is its own data.frame with rows as sites and columns as repeat visits. These are things that can change between visits. Could be environmental conditions like daily temperature or cloud cover, or methodological variables like survey method (spotlighting, pitfall traps, ink cards etc.) or an observer ID.  
+
+
+<br>  
+
+##### Null occupancy model (no covariates)  
+
+
+For a null occupancy model, we do not have any covariates for either the sites or the observations. Instead, we fit a model usnig only the intercept as an explanatory variable.  
+
+First, we write a function that does three things.  
+1. Takes a nearly properly formatted species data frame and finalizes the format as an "unmarkedFrameOccu" input object.  
+2. Fit null occupancy model (has only intercepts ["~1 ~1"] for occupancy and detection submodels - no covariates).  
+3. Back transform the model occupancy and detection estimates to occupancy and detection probability values ranging from 0-1.  
+
+
+```{r}
+fnx_group_by_year_season <- function(groupby_df_in) {
+  df_mod <- groupby_df_in |>
+    select(where(function(x) !all(is.na(x)))) |> 
+    droplevels()
+  
+  unmrkdFrmOccu_spp <- unmarkedFrameOccu(y = df_mod[-c(1:3)])
+  
+  occu_spp_null <- occu(~1 ~1, data = unmrkdFrmOccu_spp, starts=c(0.5,0.1))
+  
+  # invisible(capture.output(modfit_summary <- summary(occu_spp_null) ))
+  
+  
+  # 'invisible(capture.output())' suppresses automatic backTransform() output
+  # Occupancy estimate
+  invisible(capture.output(  # suppresses automatic backTransform() output
+    modfit_occupancy_psi <-   
+      backTransform(occu_spp_null, type = "state")@estimate  %>%
+      data.frame(estimate = .) |>
+      mutate(backtransform_stat = factor("occupancy_psi", 
+                                         levels = c("occupancy_psi",
+                                                    "detection_p")) ) |>
+      select(backtransform_stat, everything())
+  ))
+  
+  # Detection estimate
+  invisible(capture.output(  # suppresses automatic backTransform() output
+    modefit_detection_prob <-  
+      backTransform(occu_spp_null, type = "det")@estimate %>%
+      data.frame(estimate = .) |>
+      mutate(backtransform_stat = factor("detection_p", 
+                                         levels = c("occupancy_psi",
+                                                    "detection_p")) ) |>
+      select(backtransform_stat, everything())
+  ))
+  
+  # join estimates into a single data frame output to return
+  modfit_backtransforms <- bind_rows(modfit_occupancy_psi,
+                                     modefit_detection_prob) |>
+    mutate(estimate = round(estimate, 6))
+  
+  return(modfit_backtransforms)
+}
+```
+
+
+Second, write a function that takes the raw list of species data frames from the previous section and provides final formatting before unmarked `occu()` function model fitting. The output form this function uses the function written above to make the final link from the "data organization" section final output to results from a null occupancy model for each species across years/seasons.  
+
+
+```{r }
+# function to extract and backfill unmarked frames for each SiteID sample date
+# df_in is the data frame of occurrences for each speices
+unmarked_detection_input_format_by_year_fnx <- function(df_in) {
+  list_element_name <- names(df_in)
+  spp_occu_out <- full_join(x = df_in[[1]],
+                            y = alldates_abund_60woFO_key, 
+                            by = c("SiteID", "Date", "smpl_year", "julian_date", 
+                                   "visitid", "visit_n", "season"),
+                            keep = FALSE) |> droplevels() |>
+    arrange(SiteID, Date) |>
+    mutate(sppcode = list_element_name,
+           ptct_maxcnt = if_else(is.na(ptct_maxcnt), 0, ptct_maxcnt),
+           detection = if_else(is.na(detection), 0, detection)) |>
+    pivot_wider(id_cols = c("SiteID", "smpl_year", "season"),
+                names_from = visitid, names_sort = TRUE,
+                values_from = detection, values_fill = NA) |>
+    group_by(smpl_year, season) %>%
+    group_modify(~ fnx_group_by_year_season(groupby_df_in = .)) |>
+    mutate(sppcode = list_element_name)
+  
+  # names(spp_occu_out) <- list_element_name
+  return(spp_occu_out)
+}
+```
+
+
+Here we use those two functions above to make the model fits for each species by year and season. The output is a list of data frames (one for each species) that include the occupancy and detection probability results from the null model.  
+
+```{r cache=FALSE, warning=FALSE}
+unmarked_sppcode02_backfilledzeros_df_ls <-
+  purrr::lmap(.x = unmarked_sppcode_df_ls, 
+              .f = unmarked_detection_input_format_by_year_fnx)
+
+# unmarked_sppcode02_backfilledzeros_df_ls[[1]] |> 
+#   arrange(backtransform_stat, smpl_year, season)
+```
+
+
+To plot the estimates across years by season, we write a function to take those occupancy and detection probability values and plot them for each species.  
+
+
+```{r }
+      # labels for occupancy and detection
+occ_det_labs <- c("Occupancy (\u03C8)", "Detection (\u0070)" )
+# occ_det_labs <- c(expression(italics(psi[1])), "Detection (\u0070)" )
+
+fnx_occudetect_by_yearseason_plot <- function(df_in) {
+  df_in  |>
+    mutate(backtransform_stat = factor(backtransform_stat,
+                                       labels = occ_det_labs ) ) |>
+  arrange(backtransform_stat) %>%
+  {ggplot(data = ., aes(x = smpl_year, y = estimate, 
+                        color = season, linetype = season,
+                        linewidth = season)) +
+      geom_line() +
+      theme_bw() +
+      scale_color_manual(values = c('#e66101','#fdb863','#b2abd2','#5e3c99'),
+                         breaks = c("sprgmigr","breeding","fallmigr","ovrwintr"),
+                         label = c("Spring migration","Breeding",
+                                   "Fall migration","Overwintering")) + 
+      scale_linetype_manual(values = c("dashed","solid","dotted","solid"),
+                         breaks = c("sprgmigr","breeding","fallmigr","ovrwintr"),
+                         label = c("Spring migration","Breeding",
+                                   "Fall migration","Overwintering")) + 
+      scale_linewidth_manual(values = c(1,1,1,0.5),
+                         breaks = c("sprgmigr","breeding","fallmigr","ovrwintr"),
+                         label = c("Spring migration","Breeding",
+                                   "Fall migration","Overwintering")) + 
+      labs(title = paste0("Species: ", .$sppcode[1]),
+           x = "Year", y = "Probability estimate", 
+           color = "Season", linetype = "Season", linewidth = "Season") +
+      theme(legend.position = "bottom") +
+      facet_wrap(~ backtransform_stat)
+  }
+}
+# fnx_occudetect_by_yearseason_plot(unmarked_sppcode02_backfilledzeros_df_ls[[1]])
+```
+
+Next, apply that plotting function to each species list element/data frame.   
+
+```{r results='hide', fig.width=6.5, fig.height=4.5, cache=FALSE, warning=FALSE}
+purrr::map(unmarked_sppcode02_backfilledzeros_df_ls, fnx_occudetect_by_yearseason_plot)
+```
+
+
+
+
+
+
+

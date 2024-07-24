@@ -1,0 +1,225 @@
+---
+title: "i-Tree Data Exploration"
+author: "Matt Fuller"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: yes
+    number_sections: yes
+    toc_float: yes
+    code_folding: hide
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+always_allow_html: yes
+---
+
+Initial set up and R package loading.  
+
+```{r setup, message=FALSE}
+library(sf)
+library(tidyverse)
+library(DT)
+library(leaflet)
+library(htmltools)
+library(viridis)
+
+birditree_sitejoin_key <- readRDS(file = "../data/iTree_Bird_site_key.RDS")
+
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '')
+```
+
+# Read in i-Tree Data  
+
+Data were previously cleaned and organized into the below data files that are read in. See the "00_data_cleaning.Rmd" script for details on modifications made to the original data files. In addition to these cleaning steps, below we filter to just the i-Tree plots that are paired with bird sites for an initial data exploration and summary.    
+
+```{r}
+itree_plot_df <- readRDS(file = "../data/itree/itree_plot_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+itree_tree_df <- readRDS(file = "../data/itree/itree_tree_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+itree_shrub_df <- readRDS(file = "../data/itree/itree_shrub_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+itree_benefits_df <- 
+  readRDS(file = "../data/itree/itree_benefits_data_organized.RDS") |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, BirdPairedPlotNum = PlotNum), 
+            by = "itreeplotID") |>  filter(!is.na(BirdPairedPlotNum)) |>
+  select(-BirdPairedPlotNum)
+```
+
+
+
+# Map of plots  
+
+To map the plots around Santo Domingo, we can convert the text data with lat-long coordinates into simple features (sf) spatial points data frames. Each sector is has a specified color:  
+- Ciudad Nueva: black  
+- Gazcue: purple  
+- San Carlos: pink  
+- Zona Colonial : orange  
+
+
+```{r}
+# create 'sf' R object for plot data to use with 'leaflet' maps
+plot_sf <- itree_plot_df |> sf::st_as_sf(coords = c("long", "lat") )
+```
+
+
+
+```{r warning = FALSE}
+# Set up basemap tiles for various background maps
+basemap <- leaflet() |>
+  # add background maps
+  addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") |>
+  addProviderTiles("Esri.WorldImagery", group = "Esri.WorldImagery") |>  
+  addProviderTiles("OpenStreetMap.Mapnik", group = "OpenStreetMap.Mapnik") |>
+  # add a layers control
+  addLayersControl(baseGroups = c("Esri.WorldTopoMap",
+                                  "Esri.WorldImagery",
+                                  "OpenStreetMap.Mapnik"),
+  # position background map selection icon in the top-left part of map
+  position = "topleft")
+```
+
+Generate searchable map with i-Tree plots.  
+
+```{r warning = FALSE}
+# create palette for sector markers
+sector_cols <- colorFactor(palette = viridis(4, option = "A", end = 0.85), 
+                           levels = factor(plot_sf$SectorID,
+                                           levels = c("CN","GA","SC","ZC")) )
+
+# Map the plots for each sector.  
+(SD_plot_leaflet <- basemap |>
+    addCircleMarkers(data = plot_sf,
+                     popup = ~paste0("Sector: ", SectorID,";  Plot: ", PlotNum, "<br>",
+                                     "Address: ", Address, "<br>",
+                                     "Notes: ", Notes), 
+                     radius = 4, opacity = 1,
+                     color = ~ sector_cols(SectorID) ) 
+)
+```
+
+
+<br> 
+
+## Percent coverage of plots  
+
+Plot data exported from i-Tree were accompanied by summary statistics for percent coverage by trees or shrubs for each plot. Additionally, there was a field for percent coverage plantable in each plot. These coverages were summarized in a figure to compare each sectors' mean percent coverage for trees, shrubs, and plantable area.  
+
+
+```{r plotsectorcoverages, fig.width=6.5, fig.height=3}
+tree_col <- "#1b9e77"
+shrub_col <- "#d95f02"
+plantable_col <- "#7570b3"
+pt_size = 3
+
+(plot_pctcoverage <- 
+    ggplot(data = itree_plot_df |> reframe(.by = SectorID, 
+                                           percTree = mean(percTree),
+                                           percShrub = mean(percShrub),
+                                           percPlantable = mean(percPlantable)) ) + 
+    # Tree Points
+    geom_point(aes(x = SectorID, y = `percTree`, 
+                   color = "Tree", shape = "Tree" ), size = pt_size) +
+    # Shrub Points
+    geom_point(aes(x = SectorID, y = `percShrub`, 
+                   color = "Shrub", shape = "Shrub" ), size = pt_size) +
+    # Plantable Points
+    geom_point(aes(x = SectorID, y = `percPlantable`, 
+                   color = "Plantable", shape = "Plantable" ), size = pt_size) +
+    # Plot Formatting
+    theme_bw() + coord_flip() +
+    scale_x_discrete(limits=rev) + 
+    scale_color_manual(values = c(tree_col, shrub_col, plantable_col),
+                       breaks = c("Tree", "Shrub", "Plantable"),
+                       guide = guide_legend(),
+                       name = "Coverage") +
+    scale_shape_manual(values = c(17, 16, 15),
+                       breaks = c("Tree", "Shrub", "Plantable"),
+                       guide = guide_legend(),
+                       name = "Coverage") +
+    theme(legend.position = "bottom") +
+    labs(x = "", y = "Percent",
+         title = "Mean plot percent coverage for each sector")
+)  
+  
+```
+
+Trees are generaly the highest percent coverage on average among plots for each sector. The San Carlos sector had slightly less percent coverage by trees than shrubs.  
+
+
+# Trees data from i-Tree  
+
+
+i-Tree tree species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the tree names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.  
+
+```{r message = FALSE}
+key_tree_names <- read_csv(file = "../data/itree/key_tree_names.csv") |>
+  select(Common, Genus, Species, iTree) |> arrange(Common)
+
+DT::datatable(key_tree_names, rownames = FALSE, 
+              colnames = c("i-Tree name entry" = "iTree"),
+              caption = "Table 2. Naming key for tree species list.")
+```
+
+
+
+## Tree species by sector  
+
+All tree species are listed alphabetically by common name with the count for each species within each sector.  
+
+```{r}
+tree_species_df <- select(itree_tree_df, SectorID, Common, Genus, Species) |> 
+  reframe(.by = c("SectorID", "Common"), count = n()) |>
+  pivot_wider(names_from = SectorID, values_from = count) |>
+  left_join(key_tree_names, by = "Common") |>
+  select(Common, Genus, Species, CN, ZC, GA, SC) |>
+  arrange(Common, Genus, Species)
+
+# print navigable table in html output
+DT::datatable(tree_species_df, rownames = FALSE, 
+              caption = "Table 3. Tree species list and number found in each sector.")
+```
+
+
+
+# Shrubs data from i-Tree  
+
+i-Tree shrub species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the shrub names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.  
+
+```{r message=FALSE}
+key_shrub_names <- read_csv(file = "../data/itree/key_shrub_names.csv") |>
+  select(Common, Genus, Species, iTree) |> arrange(Common)
+
+DT::datatable(key_shrub_names, rownames = FALSE, 
+              colnames = c("i-Tree shrub name entry" = "iTree"),
+              caption = "Table 4. Naming key for shrub species list.")
+```
+
+```{r}
+shrub_species_df <- select(itree_shrub_df, SectorID, Common, Genus, Species) |> 
+  reframe(.by = c("SectorID", "Common"), count = n()) |>
+  pivot_wider(names_from = SectorID, values_from = count) |>
+  left_join(key_shrub_names, by = "Common") |>
+  select(Common, Genus, Species, CN, ZC, GA, SC) |>
+  arrange(Common, Genus, Species)
+```
+
+
+## Shrub species by sector  
+
+All shrub species are listed alphabetically common name with the count for each species within each sector.  
+
+```{r}
+DT::datatable(shrub_species_df, rownames = FALSE, 
+              caption = "Table 5. Shrub species list and number found in each sector.")
+```
+

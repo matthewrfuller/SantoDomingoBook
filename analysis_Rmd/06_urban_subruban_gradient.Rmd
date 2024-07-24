@@ -1,0 +1,703 @@
+---
+title: "Developing urban-subruban gradient"
+author: "Matt Fuller"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: yes
+    number_sections: yes
+    toc_float: yes
+    code_folding: hide
+  pdf_document:
+    toc: yes
+---
+
+Initial set up and R package loading.  
+
+```{r setup, message=FALSE, warning = FALSE}
+library(tidyverse)
+library(readxl)
+library(data.table)
+library(dtplyr)
+library(foreign)
+library(terra)
+library(tidyterra)
+library(leaflet)
+library(basemaps)
+library(ggspatial)
+library(sf)
+# devtools::install_github("yutannihilation/ggsflabel")
+library(ggsflabel)
+library(viridisLite)
+library(viridis)
+library(factoextra)
+
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '')
+```
+
+
+<br>  
+
+# Read in data sets  
+
+
+```{r read_in_bird_data, message=FALSE}
+## Bird data ##
+
+birditree_sitejoin_key <- readRDS(file = "../data/iTree_Bird_site_key.RDS")
+
+# Bird site data
+bird_dist_m_to_shore <- 
+  read_csv(file = "../data/bird_SiteID_with_dist_m_to_watercoast.csv") |> 
+  select(SiteID, h2o_dist_m)
+
+bird_dist_m_to_shore$waterbody_dist <- 
+  scales::rescale(bird_dist_m_to_shore$h2o_dist_m,
+                  to = c(0,1),
+                  from = range(bird_dist_m_to_shore$h2o_dist_m, 
+                               na.rm = TRUE, finite = TRUE))
+  
+bird_site_data_raw <- readRDS(file = "../data/RDS/bird_sitevisit_data.RDS")
+bird_site_data <- bird_site_data_raw |>
+  filter(!(SiteID %in% c(paste0("ZCA0",1:7),"SC15", "GA999"))) |>
+  left_join(bird_dist_m_to_shore, by = "SiteID")
+
+# i-Tree plot data
+itree_data <- readRDS(file = "../data/itree/itree_plot_data_organized.RDS") |>
+  right_join(select(birditree_sitejoin_key, SectorName, SiteID, itreeplotID), 
+             by = c("itreeplotID")) |>
+  filter(!(SiteID %in% c(paste0("ZCA0",1:7),"SC15", "GA999"))) |>
+  select(SectorName, SiteID, percTree, percShrub, percPlantable) |>
+  mutate(across(where(is.numeric), \(x) (x/100) ) )
+```
+
+
+
+```{r read_ing_geospatial_data, message = FALSE}
+## Geospatial data ##
+
+# spatial data for sites
+bird_siteID_sf <- birditree_sitejoin_key |>
+  filter(!is.na(PlotNum)) |>
+  sf::st_as_sf(coords = c("long", "lat"), crs = st_crs(4326))
+
+# create 50m-radius buffer polygons for land use analysis at each site
+site_050m_buffer_polygons <- st_buffer(x = bird_siteID_sf, dist = 50)
+
+# read in raster with gray, green, and blue infrastructure and reclassify by
+# combining non-residential and residential clases of developed, trees, & grass
+lc_raster <- 
+  terra::rast(x = "../data/geospatial/lc_resi_25march2019_waterupdate.tif") #|>
+  # terra::classify(rcl = matrix(data = c(0,1,2,4,5,10,11,12,14,15,
+  #                                       0,1,2,4,5, 0, 1, 2, 4, 5), ncol = 2))
+
+# set the category names for each class of infrastructure
+# levels(lc_raster) <- 
+#   data.frame(ID = c(0,1,2,4,5), 
+#              category = c("Developed","Tree","Grass","Water","No Data"))
+
+# grab crs for lulc raster
+lulc_crs <- terra::crs(lc_raster)
+
+
+# 
+# site_050m_buffer_polygons <-
+#   st_read(dsn = "../data/geospatial/Site_050m_buffer_polygons.shp",
+#           quiet = TRUE) |>
+#   filter(!(SiteID %in% c(paste0("ZCA0",1:7),"SC15", "GA999")))
+
+sector_polygons <- 
+  st_read(dsn = "../data/geospatial/SD_sector_polygons.shp", quiet = TRUE)  
+```
+
+
+Land use data published originally at: https://doi.org/10.1016/j.ufug.2021.127125 for USAID in partnership with USDA Forest Service.  
+
+
+# Mapping of sectors, sites, and buffers  
+
+## Interactive map of sectors and sites
+
+Zoomable map for exploring site/sector areas using background maps with streets or aerial imagery.  
+
+```{r leaflet_basemap, warning = FALSE}
+# Set up basemap tiles for various background maps
+basemap <- leaflet() |>
+  # add background maps
+  addProviderTiles("Esri.WorldImagery", group = "Esri.WorldImagery") |>  
+  addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") |>
+  # add a layers control
+  addLayersControl(baseGroups = c("Esri.WorldImagery",
+                                  "Esri.WorldTopoMap"),
+  # position background map selection icon in the top-left part of map
+  position = "topleft")
+```
+
+
+```{r leaflet_interactive_map, warning = FALSE, fig.cap="**Figure 1.** Sites representing those that are matched between bird and i-Tree data across four sectors (Ciudad Nueva: black; Gazcue: purple; San Carlos: pink; Zona Colonial: orange)."}
+# create palette for sector markers
+sector_cols <- colorFactor(palette = viridis(4, option = "A", end = 0.85), 
+                           levels = factor(bird_siteID_sf$SectorName,
+                                           levels = c("Ciudad Nueva","Gazcue",
+                                                      "San Carlos","Zona Colonial")) )
+
+# Map the plots for each sector.  
+(SD_plot_leaflet <- basemap |>
+    addPolygons(data = site_050m_buffer_polygons) |>
+    addCircleMarkers(data = bird_siteID_sf,
+                     popup = ~paste0("Sector: ", SectorName, "<br>","Site ID: ", SiteID), 
+                     radius = 4, opacity = 1,
+                     color = ~ sector_cols(SectorName) )
+)
+```
+
+<br>  
+
+
+## Static maps of sectors and sites  
+
+
+```{r ggplot_basemap_development, message = FALSE, warning=FALSE}
+# add basemap for ggplot map
+map_extent <- st_bbox(sector_polygons, crs = 3857)
+map_bbox_buffer <- 100
+map_extent[1] <- map_extent[1] - map_bbox_buffer
+map_extent[3] <- map_extent[3] + map_bbox_buffer
+map_extent[2] <- map_extent[2] - map_bbox_buffer
+map_extent[4] <- map_extent[4] + map_bbox_buffer
+
+basemap_ggplot <- ggplot()
+
+# base ggplot for scenario maps
+basemap_ggplot <- 
+  basemap_ggplot(ext = map_extent, verbose = FALSE,
+                 map_service = "carto", 
+                 map_type = "light_no_labels") +
+  
+  geom_sf(data = sector_polygons, color = "red", fill = NA, linewidth = 0.8) +
+  geom_sf_label(data = sector_polygons, aes(label = SectorName), size = 2.5,
+                nudge_x = c(-550,150,225,450),  # SC, GA, CN, ZC
+                nudge_y = c(550,600,-500,-100)) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.background = element_blank()) +
+  coord_sf(crs = 3857, 
+           xlim = c(map_extent[1], map_extent[3]),
+           ylim = c(map_extent[2], map_extent[4]),
+           expand = FALSE) +
+  # ggspatial additions of north arrow and scalebar
+  annotation_north_arrow(location = "br", which_north = "true",
+                         pad_x = unit(0.1, "in"),pad_y = unit(0.3, "in"),
+                         style = north_arrow_nautical(fill = c("grey40", "white"),
+                                                      line_col = "grey20",
+                                                      text_family = "ArcherPro Book")) +
+  annotation_scale(location = "br",bar_cols = c("grey60", "white"),
+                   text_family = "ArcherPro Book")  +
+  labs(x = "", y = "")
+
+# basemap_ggplot
+```
+
+
+### Sectors and sites map  
+
+```{r site_map_ggplot, warning = FALSE, message = FALSE, fig.width = 6.5, fig.height = 4.5}
+(site_map_ggplot <- basemap_ggplot +
+   geom_sf(data = bird_siteID_sf) +
+   
+   ggsflabel::geom_sf_text_repel(data = bird_siteID_sf, aes(label = SiteID),
+                                  size = 2) +
+   coord_sf(crs = 3857, 
+           xlim = c(map_extent[1], map_extent[3]),
+           ylim = c(map_extent[2], map_extent[4]),
+           expand = FALSE) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.background = element_blank()) +
+   labs(title = "Sites within four sectors of study system in Santo Domingo" )
+)
+
+ggsave(plot = site_map_ggplot, width = 6.5, height = 4.5, dpi = 600, units = "in",
+       filename = "../figs/Site_map_with_four_sectors.png")
+```
+
+
+### Site 50 m buffers mapped  
+
+```{r 050m_buffer_areas_for_sites_map, warning = FALSE, message = FALSE, fig.width = 6.5, fig.height = 4.5}
+(site_050mbuffer_map_ggplot <- basemap_ggplot +
+   geom_sf(data = site_050m_buffer_polygons, alpha = 0.2, color = "blue", fill = "skyblue") +
+   
+   # geom_sf(data = site_050m_st_buffers, alpha = 0.2, color = "blue", fill = "skyblue") +
+   
+   geom_sf(data = bird_siteID_sf) +
+   
+   ggsflabel::geom_sf_text_repel(data = bird_siteID_sf, aes(label = SiteID),
+                                  size = 2) +
+   coord_sf(crs = 3857, 
+           xlim = c(map_extent[1], map_extent[3]),
+           ylim = c(map_extent[2], map_extent[4]),
+           expand = FALSE) +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        legend.background = element_blank()) +
+   labs(title = "50 m site buffers for each site for zonal statistics" )
+)
+
+ggsave(plot = site_050mbuffer_map_ggplot, width = 6.5, height = 4.5, dpi = 600, units = "in",
+       filename = "../figs/Site_map_with_four_sectors_w50m_buffers.png")
+```
+
+
+# Zonal statistics for land use calculations  
+
+<br>  
+
+## Sector-based zonal statistics {.tabset}  
+
+Iterate through sector polygons to generate land use zonal statistics for each.  
+
+### Sector land use analysis code  
+
+See section tabs for tables, bar chart, and maps.  
+
+```{r sector_lulc_zona_stats_calculations, fig.height=4, fig.width=6.5}
+sector_polygons_lulc <- sector_polygons  |>
+  st_transform(crs = lulc_crs)
+
+sector_zonal_stats_df <- data.frame()
+
+for (idx in 1:nrow(sector_polygons_lulc)){
+  polygon_geom <- sector_polygons_lulc$geometry[idx] |> vect() 
+  
+  polygon_name <- sector_polygons_lulc$SectorName[idx]
+  
+  polygon_raster <- terra::crop(x = lc_raster, y = polygon_geom, mask = TRUE)
+  
+  # plot(polygon_raster, main = polygon_name, type = "classes",
+  #      col = c("gray30","burlywood4","green4","navyblue","red4",
+  #              "gray80","burlywood1","green1", "dodgerblue3","red1"),
+  #      all_levels = TRUE)
+  
+  cell_area_m2 <- res(polygon_raster)[1]*res(polygon_raster)[2]
+  
+  zonal_stats <- terra::freq(x = polygon_raster) |>
+    mutate(ID = polygon_name,
+           area_m2 = count * cell_area_m2) |>
+    mutate(area_ha = area_m2*0.0001) |>
+    select(ID, value, area_m2, area_ha, count)
+  
+  sector_zonal_stats_df <- bind_rows(sector_zonal_stats_df,
+                                     zonal_stats)
+}
+```
+
+
+
+### Table (with residential split)
+
+```{r sector_wressplit_table}
+sector_zonal_stats_df |>
+  mutate(.by = ID, total_ha = sum(area_ha, na.rm = TRUE)) |> ungroup() |>
+  mutate(area_prop = area_ha/total_ha) |>
+  pivot_wider(id_cols = ID, names_from = value, values_from = area_prop) %>%
+  mutate(across(where(is.numeric), \(x) round(x, 2) ) ) |>
+  DT::datatable(rownames = FALSE, 
+                caption = "Table 2. Land use summary by site for 50 m buffer areas.")
+```
+
+### Table (without residential split)
+
+```{r sector_woressplit_table}
+sector_zonal_stats_df |>
+  mutate(.by = ID, total_ha = sum(area_ha, na.rm = TRUE)) |> ungroup() |>
+  rowwise() |>
+  mutate(area_prop = area_ha/total_ha) |> ungroup() |>
+  pivot_wider(id_cols = ID, names_from = value, values_from = area_prop) %>%
+  rowwise() |>
+  mutate(Develop = sum(`Develop, non-residential`,`Develop, residential`,na.rm = TRUE),
+         Tree = sum(`Tree, non-residential`,`Tree, residential`,na.rm = TRUE),
+         Grass = sum(`Grass, non-residential`,`Grass, residential`,na.rm = TRUE),
+         Water = `Water, non-residential`) |> select(-contains(",")) |>
+  mutate(across(where(is.numeric), \(x) round(x, 2) ) ) |>
+  DT::datatable(rownames = FALSE, 
+                caption = "Table 2. Land use summary by site for 50 m buffer areas.")
+```
+
+
+
+
+### Bar chart for land use proportions  
+
+
+```{r sector_lulc_bar_chart, warning = FALSE, message = FALSE, fig.height = 2, fig.width = 6.5}
+sector_zonal_stats_df |>
+   mutate(.by = ID, total_ha = sum(area_ha, na.rm = TRUE)) |> ungroup() |>
+  rowwise() |>
+  mutate(area_prop = area_ha/total_ha) |> ungroup() |>
+  pivot_wider(id_cols = ID, names_from = value, values_from = area_prop) %>%
+  rowwise() |>
+  mutate(Develop = sum(`Develop, non-residential`,`Develop, residential`,na.rm = TRUE),
+         Tree = sum(`Tree, non-residential`,`Tree, residential`,na.rm = TRUE),
+         Grass = sum(`Grass, non-residential`,`Grass, residential`,na.rm = TRUE),
+         Water = `Water, non-residential`) |> select(-contains(",")) |>
+  mutate(across(where(is.numeric), \(x) round(x, 2) ) ) |> ungroup() |>
+  mutate(ID = factor(ID, levels = unique(ID[order(Develop, Tree, Grass, Water)]), 
+                     ordered = TRUE) ) |>
+  pivot_longer(cols = !ID, names_to = "landuse", values_to = "Proportion") |>
+  mutate(landuse = factor(landuse, 
+                          levels = c("Develop","Tree","Grass","Water"))) |>
+  
+  ggplot(aes(x = ID, y = Proportion)) +
+  geom_col(aes(fill = landuse)) +
+  theme_bw() +
+  scale_fill_manual(breaks = c("Develop","Tree","Grass","Water"),
+                    values = c("gray30","burlywood4","green4","navyblue")) +
+  labs(x = "", fill = "Land use",
+       title = "Sector land use coverage") +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45)) +
+  coord_flip()+
+  facet_wrap(~landuse, ncol = 4)
+```
+
+### Sector land use maps  
+
+```{r sector_lulc_zona_stats_maps, fig.height=4, fig.width=6.5}
+for (idx in 1:nrow(sector_polygons_lulc)){
+  polygon_geom <- sector_polygons_lulc$geometry[idx] |> vect() 
+  
+  polygon_name <- sector_polygons_lulc$SectorName[idx]
+  
+  polygon_raster <- terra::crop(x = lc_raster, y = polygon_geom, mask = TRUE)
+  
+  plot(polygon_raster, main = polygon_name, type = "classes",
+       col = c("gray30","burlywood4","green4","navyblue","red4",
+               "gray80","burlywood1","green1", "dodgerblue3","red1"),
+       all_levels = TRUE)
+}
+```
+
+<br>  
+
+## Site-based zonal statistics {.tabset}  
+
+Iterate through polygons for site 50 m radius areas to tabulate the areas of developed (gray), trees/grass (green), and water (blue) land covers for residential and non-residential coverages.   
+
+### 50 m buffer site landuse analysis code  
+
+See section tabs for tables, bar chart, and maps.  
+
+```{r site050mbuffer_lulc_zona_stats_calculations, fig.height=4, fig.width=6.5, cache = TRUE}
+# transform coordinate system to match lulc raster
+site_050m_buffer_polygons_lulc <- site_050m_buffer_polygons |>
+  st_transform(crs = lulc_crs)
+
+# create data frame to hold each polygon's zonal stats data
+site050m_zonal_stats_df <- data.frame()
+
+for (idx in 1:nrow(site_050m_buffer_polygons_lulc)){
+  polygon_geom <- site_050m_buffer_polygons_lulc$geometry[idx] |> vect() 
+  
+  polygon_name <- site_050m_buffer_polygons_lulc$SiteID[idx]
+  
+  polygon_raster <- terra::crop(x = lc_raster, y = polygon_geom, mask = TRUE)
+  
+  # plot(polygon_raster, main = polygon_name, type = "classes",
+  #      col = c("gray30","burlywood4","green4","navyblue","red4",
+  #              "gray80","burlywood1","green1", "dodgerblue3","red1"),
+  #      all_levels = TRUE)
+  
+  cell_area_m2 <- res(polygon_raster)[1]*res(polygon_raster)[2]
+  
+  zonal_stats <- terra::freq(x = polygon_raster) |>
+    mutate(ID = polygon_name,
+           area_m2 = count * cell_area_m2) |>
+    mutate(area_ha = area_m2*0.0001) |>
+    select(ID, value, area_m2, area_ha, count)
+  
+  site050m_zonal_stats_df <- bind_rows(site050m_zonal_stats_df,
+                                     zonal_stats)
+}
+```
+
+### Table (with residential split)
+
+```{r site050mbuffer_wressplit_table}
+site050m_zonal_stats_ungroupedcategories_df <- site050m_zonal_stats_df |>
+  filter(!(value %in% c("Water, non-residential"))) |>
+  mutate(.by = ID, total_ha = sum(area_ha, na.rm = TRUE)) |> ungroup() |>
+  rowwise() |>
+  mutate(area_prop = area_ha/total_ha) |> ungroup() |>
+  pivot_wider(id_cols = ID, names_from = value, 
+              values_from = area_prop, values_fill = 0)
+  
+# save data for future analysis
+saveRDS(site050m_zonal_stats_ungroupedcategories_df,
+        file = "../data/RDS/site050m_zonal_stats_ungroupedcategories_df.RDS")
+
+DT::datatable(data = mutate(site050m_zonal_stats_ungroupedcategories_df,
+                            across(where(is.numeric), \(x) round(x, 2) ) ),
+                rownames = FALSE, 
+                caption = "Table 2. Land use summary by site for 50 m buffer areas.")
+```
+
+### Table (without residential split)
+
+```{r site050mbuffer_woressplit_table}
+site050m_zonal_stats_groupedcategories_df <- site050m_zonal_stats_df |>
+  filter(!(value %in% c("Water, non-residential"))) |>
+  mutate(.by = ID, total_ha = sum(area_ha, na.rm = TRUE)) |> ungroup() |>
+  rowwise() |>
+  mutate(area_prop = area_ha/total_ha) |> ungroup() |>
+  pivot_wider(id_cols = ID, names_from = value, 
+              values_from = area_prop, values_fill = 0) %>%
+  rowwise() |>
+  mutate(Develop = sum(`Develop, non-residential`,`Develop, residential`,na.rm = TRUE),
+         Tree = sum(`Tree, non-residential`,`Tree, residential`,na.rm = TRUE),
+         # Water = `Water, non-residential`,
+         Grass = sum(`Grass, non-residential`,`Grass, residential`,na.rm = TRUE)
+         ) |> select(-contains(","))
+  
+
+# save data for future analysis
+saveRDS(site050m_zonal_stats_groupedcategories_df,
+        file = "../data/RDS/site050m_zonal_stats_groupedcategories_df.RDS")
+
+
+DT::datatable(data = mutate(site050m_zonal_stats_groupedcategories_df,
+                            across(where(is.numeric), \(x) round(x, 2) ) ),
+              rownames = FALSE, 
+              caption = "Table 2. Land use summary by site for 50 m buffer areas.")
+```
+
+
+
+
+### Bar chart for land use proportions  
+
+
+```{r site050mbuffer_lulc_bar_chart, warning = FALSE, message = FALSE, fig.height = 8.5, fig.width = 6.5}
+site050m_zonal_stats_df |>
+  filter(!(value %in% c("Water, non-residential"))) |>
+  mutate(.by = ID, total_ha = sum(area_ha, na.rm = TRUE)) |> ungroup() |>
+  rowwise() |>
+  mutate(area_prop = area_ha/total_ha) |> ungroup() |>
+  pivot_wider(id_cols = ID, names_from = value, values_from = area_prop) %>%
+  rowwise() |>
+  mutate(Develop = sum(`Develop, non-residential`,`Develop, residential`,na.rm = TRUE),
+         Tree = sum(`Tree, non-residential`,`Tree, residential`,na.rm = TRUE),
+         # Water = `Water, non-residential`,
+         Grass = sum(`Grass, non-residential`,`Grass, residential`,na.rm = TRUE)
+         ) |> select(-contains(",")) |>
+  mutate(across(where(is.numeric), \(x) round(x, 2) ) ) |> ungroup() |>
+  # rename(SiteID = "ID") |>
+  mutate(ID = factor(ID, levels = unique(ID[order(Develop, Tree, Grass#, Water
+                                                  )]), 
+                     ordered = TRUE) ) |>
+  pivot_longer(cols = !ID, names_to = "landuse", values_to = "Proportion") |>
+  mutate(landuse = factor(landuse, 
+                          levels = c("Develop","Tree","Grass","Water"))) |>
+  
+  ggplot(aes(x = ID, y = Proportion)) +
+  geom_col(aes(fill = landuse)) +
+  theme_bw() +
+  scale_fill_manual(breaks = c("Develop","Tree","Grass","Water"),
+                    values = c("gray30","burlywood4","green4","navyblue")) +
+  labs(x = "", fill = "Land use",
+       title = "Site land use coverage within 50 m buffers") +
+  theme(legend.position = "none", 
+        axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45)) +
+  coord_flip()+
+  facet_wrap(~landuse, ncol = 4)
+
+ggsave(plot = last_plot(), filename = "../figs/landcover_barplot_grouped.png",
+       width = 6.5, height = 8.5, units = "in", dpi = 600)
+```
+
+
+
+### 50 m buffer site landuse maps  
+
+```{r site050mbuffer_lulc_zona_stats_maps, fig.height=4, fig.width=6.5}
+for (idx in 1:nrow(site_050m_buffer_polygons_lulc)){
+  polygon_geom <- site_050m_buffer_polygons_lulc$geometry[idx] |> vect() 
+  
+  polygon_name <- site_050m_buffer_polygons_lulc$SiteID[idx]
+  
+  polygon_raster <- terra::crop(x = lc_raster, y = polygon_geom, mask = TRUE)
+  
+  plot(polygon_raster, main = polygon_name, type = "classes",
+       col = c("gray30","burlywood4","green4","navyblue","red4",
+               "gray80","burlywood1","green1", "dodgerblue3","red1"),
+       all_levels = TRUE)
+}
+```
+
+# Rank-based urban-suburban gradient  
+
+Rank-based gradient provides user-specified weighting to each component used for extracting a gradient between urban and suburban areas. Here we create several weighting schemes from the four land cover categories (Developed, Trees, Grass, distance to permanent water body) that include:  
+
+1. Equal weights for each category  
+2. variable weighting assignments that weight developed areas higher than than green spaces (Trees and Grass) and finally distance to water bodies. 
+
+```{r}
+rank_grdt_df <- site050m_zonal_stats_groupedcategories_df |>
+  rename(SiteID = "ID") |>
+  left_join(bird_dist_m_to_shore, by = "SiteID") |> ungroup() |>
+  mutate(rank_dev = min_rank(desc(Develop)),
+         rank_tre = min_rank(Tree),
+         rank_gra = min_rank(Grass),
+         rank_h2o = min_rank(desc(h2o_dist_m)) ) |>
+  rowwise() |>
+  # equal weights
+  mutate(rank_wght_25252525 = sum(rank_dev*0.25, rank_tre*0.25, 
+                              rank_gra*0.25, rank_h2o*0.25)) |> 
+  # weights 50% dev, 25% tree, 15% grass, 10% water
+  mutate(rank_wght_50251510 = sum(rank_dev*0.5, rank_tre*0.25, 
+                              rank_gra*0.15, rank_h2o*0.1)) |> 
+  # weights 50% dev, 20% tree, 15% grass, 15% water
+  mutate(rank_wght_50201515 = sum(rank_dev*0.5, rank_tre*0.20, 
+                              rank_gra*0.15, rank_h2o*0.15)) |> 
+  # weights 45% dev, 15% tree, 15% grass, 15% water
+  mutate(rank_wght_45151515 = sum(rank_dev*0.45, rank_tre*0.15, 
+                              rank_gra*0.15, rank_h2o*0.15)) |> 
+  # weights 70% dev, 10% tree, 10% grass, 10% water
+  mutate(rank_wght_70101010 = sum(rank_dev*0.7, rank_tre*0.1, 
+                              rank_gra*0.1, rank_h2o*0.1)) |> 
+  # weights 40% dev, 20% tree, 20% grass, 20% water
+  mutate(rank_wght_40202020 = sum(rank_dev*0.4, rank_tre*0.2, 
+                              rank_gra*0.2, rank_h2o*0.2)) |> 
+  # weights 30% dev, 30% tree, 30% grass, 10% water
+  mutate(rank_wght_30303010 = sum(rank_dev*0.3, rank_tre*0.3, 
+                              rank_gra*0.3, rank_h2o*0.1)) |> 
+  # weights 30% dev, 30% tree, 20% grass, 20% water
+  mutate(rank_wght_30302020 = sum(rank_dev*0.3, rank_tre*0.3, 
+                              rank_gra*0.2, rank_h2o*0.2)) |> 
+  ungroup() |> 
+  select(SiteID, starts_with("rank_wght"))
+
+saveRDS(rank_grdt_df, file = "../data/RDS/rankbased_urbangrdt_df.RDS")
+```
+
+
+
+# PCA-based urban-suburban gradient  
+
+## PCA code resources  
+
+Basic PCA analysis:
+https://www.datacamp.com/tutorial/pca-analysis-r
+
+Visualizing PCA results:
+https://rpkgs.datanovia.com/factoextra/reference/fviz_pca.html
+
+
+## Data preparation for PCA  
+
+```{r}
+site050m_zonal_stats_pca_df <- site050m_zonal_stats_groupedcategories_df %>%
+  mutate(across(where(is.numeric), ~replace(., is.na(.), 0))) |>
+  left_join(itree_data, by = c("ID" = "SiteID")) |>
+  left_join(select(bird_dist_m_to_shore, SiteID, waterbody_dist), 
+            by = c("ID" = "SiteID") ) |>
+  mutate(SectorName = factor(SectorName, 
+                             levels = c("Gazcue","Ciudad Nueva",
+                                        "Zona Colonial","San Carlos"))) |>
+  column_to_rownames(var = "ID") |>
+  select(SectorName, everything())
+```
+
+## Run PCA  
+
+
+```{r}
+urban_pca <- prcomp(site050m_zonal_stats_pca_df[,-1], scale = TRUE)
+```
+
+
+## Visualize PCA results  
+
+### Scree plot  
+
+
+```{r}
+factoextra::fviz_eig(urban_pca)
+```
+
+
+### Variable loadings plot
+
+
+```{r fig.height = 6.5, fig.width=6.5, warning = FALSE}
+(PCA_variable_loadings_plot <- 
+   factoextra::fviz_pca_var(urban_pca, col.circle = NA,
+                            # gradient.cols = rocket(10, direction = -1, begin = 0.5, end = 1),
+                            # gradient.cols = cividis(10, direction = -1),
+                            # gradient.cols = plasma(10, begin = 0, end = 0.5), 
+                            col.var = "contrib") +
+   theme_bw() +
+   scale_color_viridis(option = "F", direction = -1, begin = 0.5, end = 1,
+                       breaks = c(5.5, 20), labels = c("Low","High"), 
+                       guide = "colorbar") +
+   labs(title = "Suburban-urban gradient PCA: Variable loadings",
+        subtitle = "Variable importance: % contribution of each variable to dimension 1 and 2 spread",
+        color = "Variable Importance") +
+   theme(legend.direction = "horizontal",
+         # legend.direction = "vertical", 
+         # legend.position = c(0.92,0.15),   # vertical lower right gradient
+         legend.position = c(0.86,0.92),   # horizontal top right gradient
+         legend.background = element_blank()) +
+   guides(color = guide_colorbar(title.position = "top", title.hjust = 0.5))
+)
+
+ggsave(PCA_variable_loadings_plot, 
+       filename = "../figs/urban_gradient_PCA_variable_loadings_plot.png",
+       width = 6.5, height = 6.5, units = "in", dpi = 600)
+```
+
+
+### Individual sites plot  
+
+```{r fig.height = 6.5, fig.width=6.5, warning = FALSE}
+(PCA_individual_sites_sector_ellipse_plot <- 
+   factoextra::fviz_pca_ind(urban_pca, label = "none",
+                            habillage = site050m_zonal_stats_pca_df$SectorName, 
+                            addEllipses = TRUE, ellipse.level=0.95, palette = "Dark2",
+                            alpha.ind = 0.2,
+                            repel = TRUE)  +
+   theme_bw() +
+   scale_shape_manual(values = c(15, 19, 17, 18),
+                      breaks = c("Gazcue","Ciudad Nueva","Zona Colonial","San Carlos")) +
+   labs(title = "Suburban-urban  gradient PCA: Sites",
+        subtitle = "",
+        shape = "Sector:", color = "Sector:", fill = "Sector:") +
+   theme(legend.direction = "horizontal", 
+         legend.position = c(-0.01,1.0275),  legend.justification = "left",
+         # legend.position = c(0,0.03),  legend.justification = "left", 
+         legend.background = element_blank()) 
+)
+
+ggsave(PCA_individual_sites_sector_ellipse_plot, 
+       filename = "../figs/urban_gradient_PCA_individuals_sectorellipses_plot.png",
+       width = 6.5, height = 6.5, units = "in", dpi = 600)
+
+```
+
+
+### Bar plot: Variable contributions to dimensions 1 and 2  
+
+```{r}
+factoextra::fviz_contrib(urban_pca, choice = "var", axes = 1:2)
+```
+
+
+## Extract PCA dimension values for each site  
+
+```{r}
+urban_pca_dims <- factoextra::get_pca(urban_pca, element = "ind")$coord |>
+  data.frame() |>
+  rownames_to_column(var = "SiteID")
+
+saveRDS(urban_pca_dims, file = "../data/RDS/urban_gradient_pca_dims.RDS")
+```
+
+

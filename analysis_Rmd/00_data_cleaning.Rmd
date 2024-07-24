@@ -1,0 +1,1609 @@
+---
+title: "Bird and i-Tree Data Cleaning"
+author: "Matt Fuller"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: yes
+    number_sections: yes
+    toc_float: yes
+    code_folding: hide
+  pdf_document:
+    toc: yes
+---
+
+Initial set up and R package loading.  
+
+```{r setup, message=FALSE, warning = FALSE}
+library(tidyverse)
+library(readxl)
+library(data.table)
+library(dtplyr)
+library(ggrepel)
+
+
+source("../scripts/helperfnx/itree_readcsv.R")
+source("../scripts/helperfnx/itree_data_sector_combine.R")
+
+
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '')
+```
+
+
+<br>  
+
+# Bird data preparation  
+
+Site naming convention keys generated and resaved with appropriate cross walks.  
+
+```{r}
+# read in site key and make additional corrections.
+birditree_sitejoin_key <- read.csv(file = "../data/iTree_Bird_site_key.csv") |>
+   mutate(itreeplotID = if_else(is.na(PlotNum),NA,
+                                paste0(SectorID, str_pad(PlotNum, width = 4,
+                                                side = 'left', pad = '0')) ) )
+
+# fixing incorrect coordinates for ZC11
+birditree_sitejoin_key$lat[birditree_sitejoin_key$SiteID == "ZC11"] <- 18.46920
+birditree_sitejoin_key$long[birditree_sitejoin_key$SiteID == "ZC11"] <- -69.88445
+
+# Save crosswalk keys for clean data directory and to read in for future analyses
+write_csv(birditree_sitejoin_key, file = "../data/iTree_Bird_site_key.csv")
+saveRDS(birditree_sitejoin_key, file = "../data/iTree_Bird_site_key.RDS")
+```
+
+<br>  
+
+## Site Visit data cleaning   
+
+### Read in raw Site Visit data  
+
+Read in bird site data from master excel file covering surveys from October 2016 through May 2023. Necessary adjustments for column names and data type (factor, numeric, etc.) were also addressed.  
+
+```{r message = FALSE, warning = FALSE}
+bird_dat_site <- 
+  read_xlsx(path = "../data/bird/SD_URBANBIRDDATA202305.xlsx",
+            sheet = "Site (point) Info", 
+            col_types = c("numeric","text","text","text","text","date","numeric",
+                          "numeric","numeric","numeric","numeric","numeric",
+                          "numeric","numeric","numeric","numeric",
+                          "list","text","text","text","text","text","text",
+                          "text","text")) |>
+  rename(SID = "Site InfoUIDDIFFERENT FROM COLUMN HEADINGS UID",
+         Tech = "Tech-nician",
+         DisturbIndex = "Disturb-Level",
+         NumPeople = "Num-People",
+         TempF = "Temp oF", TempC = "Ambtemp oC",
+         WindIndex = "Wind index (Beaufort scale 0-3)",
+         Wind_mph = "Wind (mi/hr)", Wind_kph = "Wind  (km/hr)",
+         EnvNoise = "EnvNoise index.    (1-3)",
+         NoiseTypels = "NoiseType [single column, separated by commas]",
+         NoiseTypeA = "NoiseType [parsed into 8 columns, still associated with the same UID (row)]",
+         NoiseTypeB = "...19",
+         NoiseTypeC = "...20",
+         NoiseTypeD = "...21",
+         NoiseTypeE = "...22",
+         NoiseTypeF = "...23",
+         NoiseTypeG = "...24",
+         NoiseTypeH = "...25")  |>
+  filter(!is.na(SID)) |>
+  mutate(SectorName = factor(Sector)) |>  select(-Sector) |>
+  mutate(SiteID = gsub(x = SiteID, pattern = "CC", replacement = "ZC")) |>
+  mutate(SiteID = gsub(x = SiteID, pattern = "NC", replacement = "CN")) |>  
+  filter(complete.cases(SID, SectorName, SiteID, EnvNoise)) 
+
+# relevel factor names for Sector
+bird_dat_site$SectorName <- 
+  forcats::fct_recode(bird_dat_site$SectorName, 
+                      "Zona Colonial" = "Colonial City", "Gazcue" = "Gascue",
+                      "Ciudad Nueva" = "New City", "San Carlos" = "San Carlos")
+```
+
+### Site Visit data corrections  
+
+#### Random entry error for noise index  
+
+```{r}
+# fix data entry mistake
+bird_dat_site$EnvNoise[bird_dat_site$EnvNoise == 2.2] <- 2
+```
+
+#### SiteName and SiteID mismatched entry corrections  
+
+
+```{r}
+# Fixing SiteName and SiteID matching issues
+bird_dat_site$SiteName[bird_dat_site$SiteName == "El destacamento (S. Piedra)"] <-
+  "El Destacamento (S. Piedra)"
+bird_dat_site$SiteID[bird_dat_site$SiteName == "Ruins Iglesia San Anton" &
+                         bird_dat_site$SiteID == "ZCA02"] <- "ZCA04"
+bird_dat_site$SiteName[bird_dat_site$SiteName == "Ruins of San Francisco" &
+                         bird_dat_site$SiteID == "ZCA03"] <- "Ruins San Nicolas de Baris"
+bird_dat_site$SiteName[bird_dat_site$SiteName == "Colegio Los Pichildren" &
+                         bird_dat_site$SiteID == "GA05"] <- "Colegio Los Pininos"
+bird_dat_site$SiteName[bird_dat_site$SiteName == "Residencial Luz De Luna" &
+                         bird_dat_site$SiteID == "GA07"] <- "Residencial Luz de Luna"
+bird_dat_site$SiteID[bird_dat_site$SiteName == "Pica Pollo Ana Calle E. M. Hosto" &
+                         bird_dat_site$SiteID == "CN14"] <- "CN13"
+bird_dat_site$SiteID[bird_dat_site$SiteName == "Pica Pollo Ana Calle E. M. Hosto" &
+                         bird_dat_site$SiteID == "CN30"] <- "CN13"
+bird_dat_site$SiteName[bird_dat_site$SiteName == "Detras de los Bomberos" &
+                         bird_dat_site$SiteID == "SC10"] <- "Detras de Los Bomberos"
+bird_dat_site$SiteName[bird_dat_site$SiteName == "Zone Music Calle 30 de Marzo" &
+                         bird_dat_site$SiteID == "SC29"] <- "Venta Flor Calle Benito"
+bird_dat_site$SiteName[bird_dat_site$SiteName == "Venta Flor Calle Benito" &
+                         bird_dat_site$SiteID == "SC31"] <- "Zone Music Calle 30 de Marzo"
+```
+
+
+#### Joining i-Tree plot ID fields to bird Site Data  
+
+
+```{r}
+# join key to match i-Tree plots with bird sites
+bird_dat_site <- bird_dat_site |>
+  left_join(select(birditree_sitejoin_key, SiteID, SectorID, itreeplotID), 
+            by = "SiteID")
+```
+
+
+#### Corrections made to Site Data dates  
+
+
+```{r}
+# ErrorEntryPairing 2
+bird_dat_site$Date[bird_dat_site$SiteID == "CN02" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 3
+bird_dat_site$Date[bird_dat_site$SiteID == "CN02" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 7
+bird_dat_site$Date[bird_dat_site$SiteID == "CN09" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 8
+bird_dat_site$Date[bird_dat_site$SiteID == "CN09" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 10
+bird_dat_site$Date[bird_dat_site$SiteID == "CN12" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 12
+bird_dat_site$Date[bird_dat_site$SiteID == "CN13" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 13
+bird_dat_site$Date[bird_dat_site$SiteID == "CN13" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 15
+bird_dat_site$Date[bird_dat_site$SiteID == "CN14" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 16
+bird_dat_site$Date[bird_dat_site$SiteID == "CN14" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 18
+bird_dat_site$Date[bird_dat_site$SiteID == "CN18" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 19
+bird_dat_site$Date[bird_dat_site$SiteID == "CN18" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 21
+bird_dat_site$Date[bird_dat_site$SiteID == "CN21" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 22
+bird_dat_site$Date[bird_dat_site$SiteID == "CN21" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 25
+bird_dat_site$Date[bird_dat_site$SiteID == "CN25" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 26
+bird_dat_site$Date[bird_dat_site$SiteID == "CN25" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 28
+bird_dat_site$Date[bird_dat_site$SiteID == "CN27" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 32
+bird_dat_site$Date[bird_dat_site$SiteID == "CN33" & 
+                     bird_dat_site$Date == date("2021-11-01")] <- date("2021-11-02")
+# ErrorEntryPairing 33
+bird_dat_site$Date[bird_dat_site$SiteID == "CN33" & 
+                     bird_dat_site$Date == date("2022-11-09")] <- date("2022-11-07")
+# ErrorEntryPairing 35
+bird_dat_site$Date[bird_dat_site$SiteID == "CN34" & 
+                     bird_dat_site$Date == date("2022-01-06")] <- date("2022-01-07")
+# ErrorEntryPairing 36
+bird_dat_site$Date[bird_dat_site$SiteID == "GA01" & 
+                     bird_dat_site$Date == date("2018-12-17")] <- date("2018-12-12")
+# ErrorEntryPairing 37.1
+bird_dat_site$Date[bird_dat_site$SiteID == "GA03" & 
+                     bird_dat_site$Date == date("2021-05-15")] <- date("2021-05-17")
+# ErrorEntryPairing 37.2
+bird_dat_site$Date[bird_dat_site$SiteID == "GA03" & 
+                     bird_dat_site$Date == date("2022-05-17")] <- date("2022-05-19")
+# ErrorEntryPairing 38
+bird_dat_site$Date[bird_dat_site$SiteID == "GA04" & 
+                     bird_dat_site$Date == date("2016-12-07")] <- date("2016-12-06")
+# ErrorEntryPairing 40
+bird_dat_site$Date[bird_dat_site$SiteID == "GA07" & 
+                     bird_dat_site$Date == date("2022-05-17")] <- date("2022-05-19")
+# ErrorEntryPairing 41
+bird_dat_site$Date[bird_dat_site$SiteID == "GA10" & 
+                     bird_dat_site$Date == date("2016-12-07")] <- date("2016-12-06")
+# ErrorEntryPairing 44
+bird_dat_site$Date[bird_dat_site$SiteID == "GA42" & 
+                     bird_dat_site$Date == date("2022-05-17")] <- date("2022-05-19")
+# ErrorEntryPairing 46
+bird_dat_site$Date[bird_dat_site$SiteID == "SC20" & 
+                     bird_dat_site$Date == date("2016-12-14")] <- date("2016-12-13")
+# ErrorEntryPairing 47
+bird_dat_site$Date[bird_dat_site$SiteID == "SC26" & 
+                     bird_dat_site$Date == date("2016-12-14")] <- date("2016-12-13")
+# ErrorEntryPairing 48
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC11" & 
+                     bird_dat_site$Date == date("2016-12-11")] <- date("2016-12-12")
+# ErrorEntryPairing 49
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC11" & 
+                     bird_dat_site$Date == date("2021-10-19")] <- date("2021-10-16")
+# ErrorEntryPairing 50
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC11" & 
+                     bird_dat_site$Date == date("2022-03-26")] <- date("2022-03-27")
+# ErrorEntryPairing 51
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC12" & 
+                     bird_dat_site$Date == date("2020-05-22")] <- date("2020-05-26")
+# ErrorEntryPairing 52
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC14" & 
+                     bird_dat_site$Date == date("2020-05-22")] <- date("2020-05-26")
+# ErrorEntryPairing 53
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC15" & 
+                     bird_dat_site$Date == date("2020-05-22")] <- date("2020-05-26")
+# ErrorEntryPairing 54
+bird_dat_site$Date[bird_dat_site$SiteID == "ZC37" & 
+                     bird_dat_site$Date == date("2022-03-13")] <- date("2022-03-15")
+# ErrorEntryPairing 55
+bird_dat_site$Date[bird_dat_site$SiteID == "ZCA02" & 
+                     bird_dat_site$Date == date("2020-05-22")] <- date("2020-05-26")
+# ErrorEntryPairing 56
+bird_dat_site$Date[bird_dat_site$SiteID == "ZCA03" & 
+                     bird_dat_site$Date == date("2021-10-15")] <- date("2021-10-16")
+# ErrorEntryPairing 57
+bird_dat_site$Date[bird_dat_site$SiteID == "ZCA04" & 
+                     bird_dat_site$Date == date("2017-03-27")] <- date("2017-03-28")
+# ErrorEntryPairing 58
+bird_dat_site$Date[bird_dat_site$SiteID == "ZCA05" & 
+                     bird_dat_site$Date == date("2020-11-25")] <- date("2020-11-24")
+# ErrorEntryPairing 59
+bird_dat_site$Date[bird_dat_site$SiteID == "ZCA07" & 
+                     bird_dat_site$Date == date("2017-09-28")] <- date("2017-09-29")
+# ErrorEntryPairing 60
+bird_dat_site$Date[bird_dat_site$SiteID == "GA88" & 
+                     bird_dat_site$Date == date("2016-12-07")] <- date("2016-12-06")
+```
+
+<br>  
+
+## Point Count data cleaning  
+
+### Bird keys  
+
+Read in the key for "Occurrence Status", "Foraging Guilds", and "four-letter Alpha species codes".  
+
+```{r message = FALSE}
+# Institute for Bird Populations 2023 official name list (birdpop.org)
+ibp_names <- read_csv(file = "../data/bird/IBP-AOS-LIST23_reduced.csv")
+
+# Wayne's AlphaCodes, Foraging Status, and Occurrence Status details
+key_bird_names <- 
+  read_csv(file = "../data/bird/Bird_OccurenceStatus_and_ForagingGuild_Key.csv",
+           show_col_types = FALSE) |>
+  mutate(OC_E = if_else(OccurenceStatus == "E", 1, 0),
+         OC_I = if_else(OccurenceStatus == "I", 1, 0),
+         OC_M = if_else(OccurenceStatus == "M", 1, 
+                        if_else(OccurenceStatus == "R, M",1,0) ),
+         OC_R = if_else(OccurenceStatus == "R", 1, 
+                        if_else(OccurenceStatus == "R, M",1,0) ),
+         OC_V = if_else(OccurenceStatus == "V", 1, 0) ) 
+```
+
+
+```{r}
+aplphacode_checks <- key_bird_names |>
+  left_join(ibp_names, by = c("AlphaCode" = "IBP_AlphaCode")) |>
+  select(AlphaCode, contains(c("Sci","Common")), -contains(c("Spanish")))
+```
+
+
+#### Updates to bird name details by AlphaCode  
+
+Updates were made to match the IBP 2023 list of approved 4-letter alpha codes for birds of North America.  
+
+<br>  
+
+ANEU: Antillean Euphonia/Euphonia musica -> no exact match in IBP. Possible match in: HIEU/Hispaniolan Euphonia/Chlorophonia musica
+
+ANMA: Antillean Mango/Anthracothorax dominicus -> IBP data: HIMA/Hispaniolan Mango/Anthracothorax dominicus
+
+BFGR: Black-faced Grassquit/Tiaris bicolor -> IBP has most current SciName: Melanospiza bicolor, Use IBP Scientific Name
+
+BRBO: Anous stolidus/Sula leucogaster; Brown Noddy/Brown Booby -> change AlphaCode to BRNO
+
+CACO: Fulica caribaea/Gymnogyps californianus; Caribbean Coot/California Condor -> set to IBP Entry: AMCO/American Coot/Fulica americana, based on -> (https://avibase.bsc-eoc.org/species.jsp?avibaseid=BB9C0A8BB9B447E5) 
+
+COCK: Cockatiel/Nymphicus hollandicus -> no matching entires in IBP2023; leave as is for now.
+
+COGD: Common Ground-Dove/Columbina passerina -> change to IBP: CGDO/Common Ground Dove/Columbina passerina
+
+GABU: Loxigilla violacea/Melopyrrha violacea; Greater Antillean Bullfinch/Greater Antillean Bullfinch -> use IBP SciName
+
+GANI: Greater Antillean Nightjar/Antrostomus cubanensis -> maybe IBP entry: HINI/Hispaniolan Nightjar/Antrostomus ekmani
+
+HIEM: Chlorostilbon swainsonii/Riccordia swainsonii; Hispaniolan Emerald/Hispaniolan Emerald -> update to IBP SciName
+
+NOHO: Northern Harrier/Circus cyaneus -> IBP Entry: NOHA/Northern Harrier/Circus hudsonius
+
+PACR: Palm Crow/Corvus palmarum -> IBP Entry: HIPC/Hispaniolan Palm-Crow/Corvus palmarum
+
+PIWA: Setophaga pinus chrysoleuca/Setophaga pinus; Pine Warbler/Pine Warbler -> use IBP SciName
+
+PUGA: Porphyrio martinica/Porphyrio martinicus; Purple Gallinule/Purple Gallinule -> use IBP SciName
+
+RBGB: Rose-breasted Grosbeak/Pheucticus ludovicianus -> IBP Entry: RBGR/Rose-breasted Grosbeak/Pheucticus ludovicianus
+
+RCKI: Regulus calendula/Corthylio calendula; Ruby-crowned Kinglet/Ruby-crowned Kinglet -> use IBP SciName
+
+SCCO: Sulphur-crested Cockatoo/Lophornis brachylophus; Cacatua galerita/Short-crested Coquette -> Set AlphaCode to SUCO
+
+WEWA: Helmitheros vermivorus/Helmitheros vermivorum; Worm-eating Warbler/Worm-eating Warbler -> use IBP SciName
+
+WILL: Tringa semipalmatus/Tringa semipalmata; Willet/Willet -> Use IBP SciName
+
+<br>  
+
+#### Corrections made to match IBP naming conventions for 2023  
+
+
+```{r}
+# corrections to key_bird_names based on IBP 2023 names list
+key_bird_names$CommonNameEnglish[key_bird_names$AlphaCode == "ANEU"] <- "Hispaniolan Euphonia"
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "ANEU"] <- "Chlorophonia musica"
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "ANEU"] <- "HIEU"
+
+key_bird_names$CommonNameEnglish[key_bird_names$AlphaCode == "ANMA"] <- "Hispaniolan Mango"
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "ANMA"] <- "Anthracothorax dominicus"
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "ANMA"] <- "HIMA"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "BFGR"] <- "Melanospiza bicolor"
+
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "BRBO"] <- "BRNO"
+
+key_bird_names$CommonNameEnglish[key_bird_names$AlphaCode == "CACO"] <- "American Coot"
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "CACO"] <- "Fulica americana"
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "CACO"] <- "AMCO"
+
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "COGD"] <- "CGDO"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "GABU"] <- "Melopyrrha violacea"
+
+key_bird_names$CommonNameEnglish[key_bird_names$AlphaCode == "GANI"] <- "Hispaniolan Nightjar"
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "GANI"] <- "Antrostomus ekmani"
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "GANI"] <- "HINI"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "HIEM"] <- "Riccordia swainsonii"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "NOHO"] <- "Circus hudsonius"
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "NOHO"] <- "NOHA"
+
+key_bird_names$CommonNameEnglish[key_bird_names$AlphaCode == "PACR"] <- "Hispaniolan Palm-Crow"
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "PACR"] <- "HIPC"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "PUGA"] <- "Porphyrio martinicus"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "PIWA"] <- "Setophaga pinus"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "RCKI"] <- "Corthylio calendula"
+
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "RBGB"] <- "RBGR"
+
+key_bird_names$AlphaCode[key_bird_names$AlphaCode == "SCCO"] <- "SUCO"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "WEWA"] <- "Helmitheros vermivorum"
+
+key_bird_names$ScientificName[key_bird_names$AlphaCode == "WILL"] <- "Tringa semipalmata"
+
+```
+
+
+
+```{r}
+# Check again for issues after making corrections
+aplphacode_checks <- key_bird_names |>
+  left_join(ibp_names, by = c("AlphaCode" = "IBP_AlphaCode")) |>
+  mutate(sciname_same = (toupper(ScientificName) == toupper(IBP_SciName) ) ,
+         common_same = (toupper(CommonNameEnglish) == toupper(IBP_Common) ) ) |>
+  select(AlphaCode, contains(c("Sci","Common")), -contains(c("Spanish")))
+```
+
+
+
+```{r}
+# save bird key names following corrections
+saveRDS(key_bird_names, file = "../data/bird/key_bird_names.RDS")
+```
+
+
+
+
+### Read in raw Point Count data  
+
+Read in the data from the bird point counts in Santo Domingo and make necessary adjustments to data types (factor, numeric, etc.) and column names. Also join to site key to match i-Tree plots with their corresponding bird sites.  
+
+
+```{r warning = FALSE}
+bird_dat_ptct <- 
+  read_xlsx(path = "../data/bird/SD_URBANBIRDDATA202305.xlsx",
+            sheet = "RAW DATA", 
+            col_types = c("numeric","text","text","text","text","date","date",
+                          "date","text","numeric","numeric","text","numeric",
+                          "numeric","text","numeric","numeric","text","text",
+                          "text","text","text","text")) |>
+  rename(UID = "UID (Column Headings explained) DIFFERENT FROM SITE INFOUID",
+         FTorFO = "FT  or FO",
+         Treespp = "Tree species",
+         Stratumindex = "Stratum index",
+         Inanimatesubs = "Inanimate substrate",
+         SectorName = "Sector",
+         SppAlphaCode = "Species") |>
+  left_join(y = select(key_bird_names, -contains("Spanish")), 
+            by = c("SppAlphaCode"="AlphaCode") ) |>
+  mutate(SectorName = if_else(SectorName == "Colonial City", "Zona Colonial", 
+                              if_else(SectorName == "New City", "Ciudad Nueva",
+                                      SectorName)),
+         SiteID = gsub(x = SiteID, pattern = "CC", replacement = "ZC")) |>
+  mutate(SiteID = gsub(x = SiteID, pattern = "NC", replacement = "CN")) |>
+  left_join(y = select(birditree_sitejoin_key,
+                       SectorID, SiteID, lat,
+                       long, PlotNum, itreeplotID), by = "SiteID",
+            relationship = "many-to-one") |>
+  filter(!is.na(UID))
+```
+
+
+### Point Count data corrections  
+
+#### SectorName, SectorID, SiteName, and SiteID corrections (by Sector)  
+
+##### Ciudad Nueva  
+
+```{r CN corrections}
+# Ciudad Nueva SiteID/SiteName corrections
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN03" &
+                       bird_dat_ptct$SiteName == "Pica Pollo Ana Calle E. M. Hosto" &
+                       bird_dat_ptct$Date == date("2021-09-11")] <- "CN13"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA08" &
+                       bird_dat_ptct$SiteName == "Primera Iglesia Evangelica" &
+                       bird_dat_ptct$Date == date("2018-06-09")] <- "ZC08"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN05" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN06" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN07" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN08" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN09" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN10" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN11" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN12" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN13" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN14" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN15" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN16" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN17" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN18" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN19" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN20" &
+                       bird_dat_ptct$SiteName == "Casa No. 5 Calle Las Carreras" &
+                       bird_dat_ptct$Date == date("2020-11-07")] <- "CN04"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "CN04" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2018-01-12")] <- 
+  "Casa No. 5 Calle Las Carreras"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN14" &
+                       bird_dat_ptct$SiteName == "Pica Pollo Ana Calle E. M. Hosto" &
+                       bird_dat_ptct$Date == date("2018-10-09")] <- "CN13"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "CN22" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bu Febt A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2016-12-10")] <- 
+  "2da. Iglesia E.(Bufet A. F. Mato)"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "CN22" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bu Febt A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2016-12-21")] <- 
+  "2da. Iglesia E.(Bufet A. F. Mato)"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN23" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN24" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN25" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN26" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN27" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN28" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN29" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN30" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN31" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN32" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN33" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN34" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN35" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN36" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN37" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN38" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN39" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN40" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN41" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN42" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN43" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN44" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN45" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN46" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN47" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "CN48" &
+                       bird_dat_ptct$SiteName == "2da. Iglesia E.(Bufet A. F. Mato)" &
+                       bird_dat_ptct$Date == date("2022-09-15")] <- "CN22"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "CN33" &
+                       bird_dat_ptct$SiteName == "El Gimnasio E. M. Hosto" &
+                       bird_dat_ptct$Date == date("2017-04-04")] <- "La Lechonera Calle Pina"
+```
+
+##### Gazcue  
+
+```{r GA corrections}
+# GAZCUE SiteID/SiteName corrections
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA" &
+                       bird_dat_ptct$SiteName == "Cristo Mio" &
+                       bird_dat_ptct$Date == date("2018-01-09")] <- "GA999"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA04" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA05" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA06" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA07" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA08" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA09" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA10" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA11" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA12" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA13" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA14" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA15" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA16" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA17" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA18" &
+                       bird_dat_ptct$SiteName == "El Palacio Nacional (original)" &
+                       bird_dat_ptct$Date == date("2019-12-20")] <- "GA03"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA08" &
+                       bird_dat_ptct$SiteName == "Primera Iglesia Evangelica" &
+                       bird_dat_ptct$Date == date("2018-06-09")] <- "ZC08"
+bird_dat_ptct$SectorID[bird_dat_ptct$SiteID == "GA08" &
+                       bird_dat_ptct$SiteName == "Primera Iglesia Evangelica" &
+                       bird_dat_ptct$Date == date("2018-06-09")] <- "ZC"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "Residencial Luz De Luna" ] <- 
+  "Residencial Luz de Luna"
+
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "Plaza de la Cultura" ] <- 
+  "Plaza de La Cultura"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "Plaza De La Cultura" ] <- 
+  "Plaza de La Cultura"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "Bellas artes" ] <- 
+  "Bellas Artes"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA115" &
+                       bird_dat_ptct$SiteName == "Ministerio de Cultura" &
+                       bird_dat_ptct$Date == date("2018-04-06")] <- "GA64"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA173" &
+                       bird_dat_ptct$SiteName == "Detras Casa de Balaguer" &
+                       bird_dat_ptct$Date == date("2018-02-26")] <- "GA172"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA65" &
+                       bird_dat_ptct$SiteName == "Ministerio de Cultura" &
+                       bird_dat_ptct$Date == date("2018-06-24")] <- "GA64"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "GA08" &
+                       bird_dat_ptct$SiteName == "Ministerio de Cultura" &
+                       bird_dat_ptct$Date == date("2017-04-07")] <- "GA64"
+
+```
+
+##### San Carlos  
+
+```{r SC corrections}
+# SAN CARLOS SiteID/SiteName corrections
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC17" &
+                       bird_dat_ptct$SiteName == "Barra Payan Calle 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2020-11-06")] <- "CN13"
+bird_dat_ptct$SectorID[bird_dat_ptct$SiteID == "CN13" &
+                       bird_dat_ptct$SiteName == "Barra Payan Calle 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2020-11-06")] <- "CN"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "CN13" &
+                       bird_dat_ptct$SiteName == "Barra Payan Calle 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2020-11-06")] <- 
+  "Pica Pollo Ana Calle E. M. Hosto"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC21" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC22" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC23" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC24" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC25" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC26" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC27" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC28" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC29" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC30" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC31" &
+                       bird_dat_ptct$SiteName == "Supermercado de Las Flores" &
+                       bird_dat_ptct$Date == date("2022-05-10")] <- "SC20"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "SC26" &
+                       bird_dat_ptct$SiteName == "OR Solar Calle 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2022-09-30")] <- "SC16"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "SC28" &
+                       bird_dat_ptct$SiteName == "AV. 27 de  Febbrero con 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2016-12-01")] <- 
+  "AV. 27 de Febrero con 30 de Marzo"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "SC28" &
+                       bird_dat_ptct$SiteName == "AV. 27 de  Febbrero con 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2016-12-14")] <- 
+  "AV. 27 de Febrero con 30 de Marzo"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "SC28" &
+                       bird_dat_ptct$SiteName == "AV. 27 de  Febbrero con 30 de Marzo" &
+                       bird_dat_ptct$Date == date("2016-12-23")] <- 
+  "AV. 27 de Febrero con 30 de Marzo"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "SC35" &
+                       bird_dat_ptct$SiteName == "Callejon Imbert (Jesus arca)" &
+                       bird_dat_ptct$Date == date("2017-07-24")] <- 
+  "Callejon Imbert (Jesus Arca)"
+```
+
+##### Zona Colonial  
+
+```{r ZC corrections}
+# ZONA COLONIAL SiteID/SiteName corrections
+# unable to initially rectify ZC05 SiteID in the pointcount data, so removing it
+# bird_dat_ptct <- filter(bird_dat_ptct, SiteID != "ZC05")
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "El destacamento (S. Piedra)" ] <- 
+  "El Destacamento (S. Piedra)"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "Calle Celestino Con Merino" ] <- 
+  "Calle Celestino con Merino"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteName == "Frente A Kalea" ] <- 
+"Frente a Kalea"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC12" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC13" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC14" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC15" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC16" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC17" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC18" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC19" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC20" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC21" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC22" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC23" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC24" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC25" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC26" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC27" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC28" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC29" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC30" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC31" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC32" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC33" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC34" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC35" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC36" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZC37" &
+                       bird_dat_ptct$SiteName == "Estatua Montesino" &
+                       bird_dat_ptct$Date == date("2018-06-22")] <- "ZC11"
+bird_dat_ptct$SiteName[bird_dat_ptct$SiteID == "ZC21" &
+                       bird_dat_ptct$SiteName == "Final Calle El Conde" &
+                       bird_dat_ptct$Date == date("2017-10-23")] <- "Callejon de Regina"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA06" &
+                       bird_dat_ptct$SiteName == "Calle Celestino con Merino" &
+                       bird_dat_ptct$Date == date("2022-02-05")] <- "ZC07"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA07" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA08" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA09" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA10" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA11" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA12" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA13" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA14" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA15" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA16" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA17" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA18" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA19" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA20" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA21" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA22" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA23" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA24" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA25" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA26" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA27" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+bird_dat_ptct$SiteID[bird_dat_ptct$SiteID == "ZCA28" &
+                       bird_dat_ptct$SiteName == "Calle Hosto con Arzobispo P." &
+                       bird_dat_ptct$Date == date("2022-04-20")] <- "ZCA06"
+```
+
+
+#### Date corrections  
+
+Companion excel file used to link pairs of sites that did not have matching dates is named "sitevisit_sitedf_pointcountdf_join.xlsx" and provides notes on how each date entry error was identified and then fixed using the code below.  
+
+```{r}
+# ErrorEntryPairing 1
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN02" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 4
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN03" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 5
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN04" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 6
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN09" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 9
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN12" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 11
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN13" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 14
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN14" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 17
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN18" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 20
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN21" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 23
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN22" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 24
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN25" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 27
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN27" & 
+                     bird_dat_ptct$Date == date("2019-02-12")] <- date("2019-03-12")
+# ErrorEntryPairing 29
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN30" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 30
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN30" & 
+                     bird_dat_ptct$Date == date("2019-11-14")] <- date("2019-11-13")
+# ErrorEntryPairing 31
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN33" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 34
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "CN34" & 
+                     bird_dat_ptct$Date == date("2019-02-13")] <- date("2019-03-13")
+# ErrorEntryPairing 39
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "GA05" & 
+                     bird_dat_ptct$Date == date("2019-04-23")] <- date("2019-04-24")
+# ErrorEntryPairing 42
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "GA222" & 
+                     bird_dat_ptct$Date == date("2020-01-20")] <- date("2020-01-21")
+# ErrorEntryPairing 43
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "GA42" & 
+                     bird_dat_ptct$Date == date("2019-11-21")] <- date("2019-11-22")
+# ErrorEntryPairing 45
+bird_dat_ptct$Date[bird_dat_ptct$SiteID == "SC01" & 
+                     bird_dat_ptct$Date == date("2021-11-17")] <- date("2021-11-18")
+```
+
+
+Remove and then rejoin the i-Tree plot details to this data set following the corrected dates and site IDs.  
+
+```{r}
+bird_dat_ptct <- bird_dat_ptct |>
+  filter(!is.na(SiteID)) |>
+  select(-PlotNum, -itreeplotID, -SectorID, -lat, -long) |>
+  left_join(select(birditree_sitejoin_key,
+                    SiteID, PlotNum, itreeplotID, SectorID, lat, long), 
+            by = "SiteID")
+```
+
+
+
+#### Bird alpha code and name corrections  
+
+Corrections to records with ambiguous 4-letter alpha codes. Fixes referenced with IBP 2023 lists for bird codes.  
+
+```{r}
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "COCKATOO"] <- "SUCO"
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "Cockatoo"] <- "SUCO"
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "Empid sp."] <- "UNEM"
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "Lovebird"] <- "RFLO"
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "roPI"] <- "ROPI"
+
+bird_dat_ptct <- bird_dat_ptct |>
+  left_join(select(key_bird_names,AlphaCode, ScientificName, CommonNameEnglish), 
+            by = c("SppAlphaCode"="AlphaCode"))
+```
+
+Additional updates to the point count data with incorrect alpha codes that need to be updated to match 2023 IBP list conventions.  
+
+```{r}
+# corrections to bird_dat_ptct based on IBP 2023 names list
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "ANMA"] <- "HIMA"
+
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "BRBO"] <- "BRNO"
+
+bird_dat_ptct$SppAlphaCode[bird_dat_ptct$SppAlphaCode == "COGD"] <- "CGDO"
+```
+
+
+General field updates for point count data
+
+```{r}
+# season function for assigning bird season basd on date of point count
+season_fnx <- function(smpl_date) {
+  season <- if_else(month(smpl_date)  %in% 6:8, "breeding",
+                          if_else(month(smpl_date)  %in% 9:11, "fallmigr",
+                                  if_else(month(smpl_date) %in% c(12,1,2), "ovrwintr", 
+                                          if_else(month(smpl_date) %in% 3:5, "sprgmigr", NA ) ) ) )
+}
+```
+
+
+```{r}
+bird_dat_ptct <- bird_dat_ptct |>
+  as_tibble() |> lazy_dt() %>%
+  mutate(season =  factor(season_fnx(Date) ) ) |>
+  data.frame()
+
+# summary(bird_dat_ptct$season)
+```
+
+<br>  
+
+## Merge Site Visit and Point Count data after corrections  
+
+### Check to see if the corrections fixed mismatched dates  
+
+Condense the Site visit and point count data to a similar structure for comparison. 
+
+```{r}
+sitevisit_site_df <- bird_dat_site |>
+  select(SectorName, SiteID, Date) |>
+  mutate(SiteID = factor(SiteID),
+         source_site_df = 1 ) |>
+  arrange(SectorName, SiteID, Date)
+
+sitevisit_ptct_df <- bird_dat_ptct |>
+  reframe(.by = c(SectorName, SiteID, Date), birdobs = n()) |>
+  select(-birdobs) |>
+  mutate(SectorName = factor(SectorName),
+         SiteID = factor(SiteID),
+         source_ptct_df = 1 ) |>
+  arrange(SectorName, SiteID, Date)
+```
+
+
+This join matches all site data (disturbance, noise, etc.) with each point count survey, but saves only those that are UNMATCHED to check if the corrections worked. There should be 30 rows in the `sitevisit_join_df` as these were the remaining entries that could not be matched/resolved.  
+
+```{r}
+sitevisit_join_df <- sitevisit_ptct_df |>
+  full_join(sitevisit_site_df, by = join_by(SectorName, SiteID, Date)) |>
+  filter(is.na(source_site_df) | is.na(source_ptct_df) ) 
+
+write_csv(sitevisit_join_df, 
+          file = "../data/sitevisit_sitedf_pointcountdf_join.csv")
+```
+
+
+### Remove records that cannot be used  
+
+We can now remove the site visit and point count data records that are unlinked with each corresponding data set before joining the two together into one final bird data set that be used in downstream analyses.  
+
+```{r}
+# remove the unusable point count data records
+sitevisit_join_df_ptct_removal <- sitevisit_join_df |>
+  filter(!is.na(source_ptct_df)) |>  select(-source_site_df) |>
+  full_join(bird_dat_ptct, by = c("SectorName", "SiteID", "Date"))  |>
+  filter(is.na(source_ptct_df)) |> select(-source_ptct_df)
+
+# remove the unusable site visit data records
+sitevisit_join_df_site_removal <- sitevisit_join_df |>
+  filter(!is.na(source_site_df)) |>  select(-source_ptct_df) |>
+  full_join(bird_dat_site, by = c("SectorName", "SiteID", "Date"))  |>
+  filter(is.na(source_site_df)) |> select(-source_site_df) 
+```
+
+
+
+### Join site and point count data sets together  
+
+
+```{r warning = FALSE}
+bird_dat_ptct_site_data_merge <- sitevisit_join_df_ptct_removal |>
+  left_join(select(sitevisit_join_df_site_removal, -SiteName, -SectorID, -itreeplotID),
+            by = c("SectorName", "SiteID", "Date"))
+```
+
+### Save cleaned bird data  
+
+
+```{r }
+# save point count data for each subset of sites
+# All 71 sites
+saveRDS(bird_dat_ptct, file="../data/RDS/bird_pointcount_data_71sites.RDS")
+write_csv(bird_dat_ptct, file="../data/bird/bird_pointcount_data_71sites.csv")
+
+# All 69 sites that have paired site visit and point count data
+saveRDS(sitevisit_join_df_ptct_removal, 
+        file = "../data/RDS/bird_pointcount_data_69sites.RDS")
+write_csv(sitevisit_join_df_ptct_removal, 
+          file = "../data/bird/bird_pointcount_data_69sites.csv")
+
+# Subset of 60 sites that have paired i-Tree plots
+saveRDS(filter(sitevisit_join_df_ptct_removal, !is.na(PlotNum)), 
+        file = "../data/RDS/bird_pointcount_data_60itreesites.RDS")
+write_csv(filter(sitevisit_join_df_ptct_removal, !is.na(PlotNum)), 
+          file = "../data/bird/bird_pointcount_data_60itreesites.csv")
+
+
+# save site visit data (69 Sites total: missing 2 unknown sites in point counts)
+saveRDS(sitevisit_join_df_site_removal, 
+        file = "../data/RDS/bird_sitevisit_data.RDS")
+write_csv(sitevisit_join_df_site_removal, 
+          file = "../data/bird/bird_sitevisit_data.csv")
+```
+
+<br>  
+
+## Bird abundance data assembly  
+
+Abundance values taken based on the maximum number of individuals recorded from the three different timed surveys on a given date. Some point count surveys had multiple entries for an individual species within a single timed survey (e.g., distinct groups of individuals observed simultaneously on different substrates or at different distances). These distinct records were summed for a given species within each timed survey on a given date. The maximum of these timed survey sums for a species is the final "abundance" value used for a species on a given date at a site.  
+
+
+```{r}
+# point count abundance data includes all 71 sites WITH FO records
+bird_ptct_abund_allsites_wFO <- bird_dat_ptct |>
+  as_tibble() |> lazy_dt() %>%
+  select(SiteID, Date, SppAlphaCode, contains("NumInd")) |>
+  pivot_longer(cols = c(T1NumInd,T2NumInd,T3NumInd), 
+               names_to = "SurveyTime", values_to = "NumInd") |> 
+  mutate(.by = c(SiteID, Date, SppAlphaCode),
+         abund_max = max(NumInd, na.rm = TRUE)) |>  
+  arrange(SiteID, Date, SppAlphaCode) |>
+  select(SiteID, Date, SppAlphaCode, abund_max) |>
+  mutate(abund_ptct = if_else(is.na(abund_max), 1, abund_max)) |>
+  mutate(season = season_fnx(Date), smpl_mon = month(Date)) |>
+  select(-abund_max) |>
+  distinct() |> data.frame()
+```
+
+
+```{r}
+# point count abundance data includes all 71 sites WITHOUT FO records
+bird_ptct_abund_allsites_woFO <- bird_dat_ptct |>
+  as_tibble() |> lazy_dt() %>%
+  # remove Fly Over observations from species counts
+  mutate(FTorFO = factor(FTorFO)) |>  filter(FTorFO %in% c(NA,"FT") ) |>
+  select(SiteID, Date, SppAlphaCode, contains("NumInd")) |>
+  pivot_longer(cols = c(T1NumInd,T2NumInd,T3NumInd), 
+               names_to = "SurveyTime", values_to = "NumInd") |> 
+  mutate(.by = c(SiteID, Date, SppAlphaCode),
+         abund_max = max(NumInd, na.rm = TRUE)) |>  
+  arrange(SiteID, Date, SppAlphaCode) |>
+  select(SiteID, Date, SppAlphaCode, abund_max) |>
+  mutate(abund_ptct = if_else(is.na(abund_max),1,abund_max)) |>
+  mutate(season = season_fnx(Date), smpl_mon = month(Date)) |>
+  select(-abund_max) |>
+  distinct() |> data.frame()
+```
+
+```{r}
+# point count abundance data includes 60 paired i-Tree sites WITH FO records
+bird_ptct_abund_itreesites_wFO <- sitevisit_join_df_ptct_removal |>
+  filter(!is.na(PlotNum)) |>  # remove sites without paired i-Tree plots
+  as_tibble() |> lazy_dt() %>%
+  select(SiteID, Date, SppAlphaCode, contains("NumInd")) |>
+  pivot_longer(cols = c(T1NumInd,T2NumInd,T3NumInd), 
+               names_to = "SurveyTime", values_to = "NumInd") |> 
+  mutate(.by = c(SiteID, Date, SppAlphaCode),
+         abund_max = max(NumInd, na.rm = TRUE)) |>  
+  arrange(SiteID, Date, SppAlphaCode) |>
+  select(SiteID, Date, SppAlphaCode, abund_max) |>
+  mutate(abund_ptct = if_else(is.na(abund_max),1,abund_max)) |>
+  mutate(season = season_fnx(Date), smpl_mon = month(Date)) |>
+  select(-abund_max) |>
+  distinct() |> data.frame()
+```
+
+
+```{r}
+# point count abundance data includes 60 paired i-Tree sites WITHOUT FO records
+bird_ptct_abund_itreesites_woFO <- sitevisit_join_df_ptct_removal |>
+  filter(!is.na(PlotNum)) |>  # remove sites without paired i-Tree plots
+  as_tibble() |> lazy_dt() %>%
+  # remove Fly Over observations from species counts
+  mutate(FTorFO = factor(FTorFO)) |>  filter(FTorFO %in% c(NA,"FT") ) |>
+  select(SiteID, Date, SppAlphaCode, contains("NumInd")) |>
+  pivot_longer(cols = c(T1NumInd,T2NumInd,T3NumInd), 
+               names_to = "SurveyTime", values_to = "NumInd") |> 
+  mutate(.by = c(SiteID, Date, SppAlphaCode),
+         abund_max = max(NumInd, na.rm = TRUE)) |>  
+  arrange(SiteID, Date, SppAlphaCode) |>
+  select(SiteID, Date, SppAlphaCode, abund_max) |>
+  mutate(abund_ptct = if_else(is.na(abund_max),1,abund_max)) |>
+  mutate(season = season_fnx(Date), smpl_mon = month(Date)) |>
+  select(-abund_max) |>
+  distinct() |> data.frame()
+```
+
+Save all these abundance summaries separately for easy access in the future.  
+
+```{r}
+# All 71 sites WITH Fly Overs
+saveRDS(bird_ptct_abund_allsites_wFO, 
+        file = "../data/RDS/bird_abundace_data_all71sites_wFO.RDS")
+# All 71 sites WITHOUT Fly Overs
+saveRDS(bird_ptct_abund_allsites_woFO, 
+        file = "../data/RDS/bird_abundace_data_all71sites_woFO.RDS")
+
+
+# i-Tree paired sites only WITH Fly Overs
+saveRDS(bird_ptct_abund_itreesites_wFO, 
+        file = "../data/RDS/bird_abundance_data_60itreesites_wFO.RDS")
+# i-Tree paired sites only WITHOUT Fly Overs
+saveRDS(bird_ptct_abund_itreesites_woFO, 
+        file = "../data/RDS/bird_abundance_data_60itreesites_woFO.RDS")
+```
+
+
+<br>  
+
+# i-Tree data preparation  
+
+
+Gather lists of files exported from i-Tree ECO software that hold all the vegetation and plot data for each Sector in Santo Domingo.  
+
+```{r}
+# Generate a list of files for each sector to read in.  
+CN_files <- list.files(path = "../data/itree/ciudad_nueva/", 
+                       recursive = TRUE, pattern = ".csv$", full.names = TRUE)
+ZC_files <- list.files(path = "../data/itree/zona_colonial/", 
+                       recursive = TRUE, pattern = ".csv$", full.names = TRUE)
+GA_files <- list.files(path = "../data/itree/gazcue/", 
+                       recursive = TRUE, pattern = ".csv$", full.names = TRUE)
+SC_files <- list.files(path = "../data/itree/san_carlos/", 
+                       recursive = TRUE, pattern = ".csv$", full.names = TRUE)
+```
+
+
+## Plot-level data from i-Tree  
+
+i-Tree plot data are read in and adjusted as necessary (currently just a coordinate update for site ZC11).  
+
+```{r message = FALSE}
+plot_data_df <- itree_sector_combine("_PLOTS.csv")
+# ZC11 plot has a Latitude entry error. 18.88447 N puts it ~45 kms outside SD
+# Lat of 18.469201 places near the Antonio De Montesinos statue which is noted
+# as nearby for the bird data SiteName for the associated Bird SiteID.
+plot_data_df$`Latitude (Y)`[plot_data_df$Address == 
+                             "Calle Arzobispo casi esquina Calle Hostos" & 
+                             plot_data_df$ID == 11] <- 18.469201  
+plot_data_df$`Longitude (X)`[plot_data_df$Address == 
+                             "Calle Arzobispo casi esquina Calle Hostos" & 
+                             plot_data_df$ID == 11] <- -69.884449  
+```
+
+
+## Percent coverage of plots  
+
+Plot data exported from i-Tree were accompanied by summary statistics for percent coverage by trees or shrubs for each plot. Additionally, there was a field for percent coverage plantable in each plot. These values were provided as range values (e.g., 15-20%) so these categorical ranges were converted to a numerical percent value in the middle of the range for each category.  
+
+
+```{r}
+# key table linking percent values to specific percent ranges
+key_pctcoverage <- 
+  read_csv(file = "../data/itree/key_project_tree_percent_cover_key.csv", 
+           col_types = "fd")
+
+# assigns percent values to percent ranges entered into i-Tree reports
+plotcov_df <- plot_data_df |>
+  mutate(itreeplotID = paste0(SectorID, str_pad(ID, width = 4, 
+                                                side = 'left', pad = '0')) ) |>
+  select(SectorID, ID, itreeplotID, contains("%"), -`% Measured`) |>
+  pivot_longer(cols = contains("%"),
+               names_to = "Coverage", values_to = "PercentRange") |>
+  mutate(PercentRange = as.factor(PercentRange)) |>
+  left_join(key_pctcoverage, by = c("PercentRange"="bin")) |>
+  rename(Percent = "value") |>
+  mutate(Coverage = gsub(x = Coverage, pattern = "% ", replacement = "perc")) |>
+  pivot_wider(id_cols = c("SectorID","ID","itreeplotID"), 
+              names_from = "Coverage", values_from = "Percent") |>
+  arrange(percTree) |>
+  left_join(select(birditree_sitejoin_key, itreeplotID, SectorName),
+            by = c("itreeplotID")) |>
+  select(contains(c("itreeplot","perc")))
+```
+
+Join the percent value data to the original plot data that include the factored range value entries. Also a little renaming of columns for easier manipulation in R.  
+
+```{r}
+# organize plot data for saving
+plot_data_org <- plot_data_df |>
+  select(-Stratum, -Date, -`Contact Info`, -`Complete?`, -`Photo ID`, -Stake) |>
+  rename(PlotNum = "ID",
+         lat = "Latitude (Y)",
+         long = "Longitude (X)",
+         Size_ha = "Size (ha)",
+         percTreerng = "% Tree",
+         percShrubrng = "% Shrub",
+         percMeasrng = "% Measured",
+         percPlantablerng = "% Plantable") |>
+  mutate(itreeplotID = paste0(SectorID, str_pad(PlotNum, width = 4, 
+                                                side = 'left', pad = '0') )) |>
+  select(SectorID, PlotNum, itreeplotID, Address, lat, long, everything() ) |>
+  left_join(plotcov_df, by = "itreeplotID")
+```
+
+Save the plot data.  
+
+```{r}
+# save organized i-Tree plot data to file for joining with bird data
+saveRDS(object = plot_data_org, 
+        file = "../data/itree/itree_plot_data_organized.RDS")
+```
+
+
+
+
+## Trees data from i-Tree  
+
+Using the local function `itree_sector_combine()` read in the tree data from each i-Tree plot and then remove uniform factors that can't be used to explain variation among i-Tree plots. For example, all "Tree Stress: Dieback" entires were "None" or "NA", so there's nothing in that variable to leverage as an explanatory variable.  
+
+```{r message = FALSE}
+tree_dat_df <- itree_sector_combine("_TREES.csv")  |> 
+  mutate(across(.cols = where(is.character), .fns = factor)) |>
+  select(!starts_with(c("Sidew", "Lati", "Longi", "Foliage", "Branches", 
+                        "Tree Stress", "Primary P")))
+```
+
+
+i-Tree tree species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the tree names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.  
+
+```{r message = FALSE}
+key_tree_names <- read_csv(file = "../data/itree/key_tree_names.csv")
+```
+
+
+```{r}
+tree_data_org <- tree_dat_df |> 
+  rename(iTreeSppName = "Species") |>
+  left_join(key_tree_names, by = c("iTreeSppName" = "iTree")) |>
+  # arrange(Genus, Species, Common) |>
+  rename(PlotNum = "Plot", TreeNum = "ID") |>
+  mutate(itreeplotID = paste0(SectorID, str_pad(PlotNum, width = 4, 
+                                                side = 'left', pad = '0')),
+  
+         SurveyDate = lubridate::mdy(`Survey Date`) ) |>
+  select(-`Survey Date`) |>
+  rename(landcover = "Land Use",
+         DBH1cm = "DBH 1 (cm)",
+         DBH1hghtm = "DBH 1: Height (m)",
+         DBH1meas = "DBH 1: Measured?",
+         DBH2cm = "DBH 2 (cm)",
+         DBH2hghtm = "DBH 2: Height (m)",
+         DBH2meas = "DBH 2: Measured?",
+         DBH3cm = "DBH 3 (cm)",
+         DBH3hghtm = "DBH 3: Height (m)",
+         DBH3meas = "DBH 3: Measured?",
+         DBH4cm = "DBH 4 (cm)",
+         DBH4hghtm = "DBH 4: Height (m)",
+         DBH4meas = "DBH 4: Measured?",
+         DBH5cm = "DBH 5 (cm)",
+         DBH5hghtm = "DBH 5: Height (m)",
+         DBH5meas = "DBH 5: Measured?",
+         DBH6cm = "DBH 6 (cm)",
+         DBH6hghtm = "DBH 6: Height (m)",
+         DBH6meas = "DBH 6: Measured?",
+         TreeHght_m = "Total Height (m)",
+         crown_cond = "Crown: Condition",
+         crown_tophghtm = "Crown: Top Height (m)",
+         crown_basehghtm = "Crown: Base Height (m)",
+         crown_width_NSm = "Crown: Width N/S (m)",
+         crown_width_EWm = "Crown: Width E/W (m)",
+         crown_percmiss = "Crown: % Missing",
+         crown_percdiebk = "Crown: % Dieback",
+         crown_lightexp = "Crown: Light Exposure",
+         percimperv = "% Impervious",
+         percshrub = "% Shrub",
+         build1_dir = "Building 1: Direction",
+         build1_distm = "Building 1: Distance (m)",
+         build2_dir = "Building 2: Direction",
+         build2_distm = "Building 2: Distance (m)",
+         build3_dir = "Building 3: Direction",
+         build3_distm = "Building 3: Distance (m)",
+         build4_dir = "Building 4: Direction",
+         build4_distm = "Building 4: Distance (m)",
+         streettree_TF = "Street Tree?",
+         maint_rec = "Maintenance Recommended",
+         maint_task = "Maintenance Task")
+
+# save organized i-Tree data to file for joining with bird data
+saveRDS(object = tree_data_org, 
+        file = "../data/itree/itree_tree_data_organized.RDS")
+
+```
+
+
+
+## Shrubs data from i-Tree  
+
+
+```{r message = FALSE}
+# Reading in all the i-Tree data on shrubs from each plot.  
+shrub_dat_df <- itree_sector_combine("_SHRUBS.csv")
+```
+
+i-Tree shrub species names were not entirely consistent (a mix of either common or scientific names first followed by the other in parentheses). We used a key table that holds the shrub names organized in four columns (i-Tree name entry, Genus, Species, Common) that can be joined to the original i-Tree names and allows us to maintain the original data alongside an organized set of scientific and common name components.  
+
+
+```{r message=FALSE}
+# read in shrub naming key
+key_shrub_names <- read_csv(file = "../data/itree/key_shrub_names.csv")
+```
+
+
+```{r}
+# get shrub data organized for export
+shrub_data_org <- shrub_dat_df |>
+  rename(PlotNum = "Plot", 
+         ShrubNum = "ID", 
+         SppShrubName = "Species",
+         ShrubHght_m = "Height (m)",
+         PercShrubArea = "% Shrub Area",
+         PercShrubMiss = "% Missing") |>
+  select(SectorID, PlotNum, ShrubNum, everything(), -Comments) |>
+  left_join(key_shrub_names, by = c("SppShrubName"="iTree")) |>
+  mutate(itreeplotID = paste0(SectorID, str_pad(PlotNum, width = 4, 
+                                                side = 'left', pad = '0')) ) |>
+  mutate(itree_shrubID = paste0(itreeplotID,"_",ShrubNum))
+```
+
+
+```{r}
+# save organized i-Tree data to file for joining with bird data
+saveRDS(object = shrub_data_org, 
+        file = "../data/itree/itree_shrub_data_organized.RDS")
+```
+
+
+## i-Tree sector all benefits summary  
+
+Read in the benefits and costs summary, composite structure of individual trees summary, hydrology effects summary, and pollution removal summary data from i-Tree reports.  
+
+```{r message=FALSE}
+bene_and_cost_df <- itree_sector_combine("_benefitcostsummary.csv") |>
+  mutate(itree_treeID = paste0(SectorID, str_pad(`Plot ID`, width = 4, 
+                                                side = 'left', pad = '0'),
+                                   "_",`Tree ID`))
+
+
+tree_compstruc_df <- itree_sector_combine("_compstrucindvtrees.csv") |>
+  mutate(itree_treeID = paste0(SectorID, str_pad(`Plot ID`, width = 4, 
+                                                side = 'left', pad = '0'),
+                                   "_",`Tree ID`))
+
+
+hydrology_df <- itree_sector_combine("_hydrologyeff.csv") |>
+  mutate(itree_treeID = paste0(SectorID, str_pad(`Plot ID`, width = 4, 
+                                                side = 'left', pad = '0'),
+                                   "_",`Tree ID`))
+
+
+pollution_df <- itree_sector_combine("_pollutionremoval.csv") |>
+  mutate(itree_treeID = paste0(SectorID, str_pad(`Plot ID`, width = 4, 
+                                                side = 'left', pad = '0'),
+                                   "_",`Tree ID`))
+```
+
+Join all benefits summary statistics together and update column names as needed.  
+
+```{r}
+allitreebenefits_df <- bene_and_cost_df |>
+  left_join(select(hydrology_df, -`Plot ID`, -`Tree ID`, -SectorID, -`Species Name`,
+                   -starts_with(c("Avoided Runoff","Leaf Area"))), 
+            by = "itree_treeID") |>
+  left_join(select(pollution_df, -`Plot ID`, -`Tree ID`, -SectorID, -`Species Name`), 
+            by = "itree_treeID") |>
+  left_join(select(tree_compstruc_df, -`Plot ID`, -`Tree ID`, -SectorID, 
+                   -`Species Name`, -`DBH (in)`), 
+            by = "itree_treeID") |>
+  rename(PlotNum = "Plot ID", 
+         TreeNum = "Tree ID", 
+         SppTreeName = "Species Name",
+         DBHin = "DBH (in)", 
+         treereplval_USD = "Replacement Value ($)",
+         Cstor_lbs = "Carbon Storage (lb)", 
+         Cstor_USD = "Carbon Storage ($)",
+         Csequ_lbsyr = "Gross Carbon Sequestration (lb/yr)",
+         Csequ_USDyr = "Gross Carbon Sequestration ($/yr)",
+         Avdroff_galyr = "Avoided Runoff (gal/yr)",
+         Avdroff_USDyr = "Avoided Runoff ($/yr)",
+         Cavd_lbsyr = "Carbon Avoided (lb/yr)",
+         Cavd_USDyr = "Carbon Avoided ($/yr)",
+         PollRem_ozyr = "Pollution Removal (oz/yr)",
+         PollRem_USDyr = "Pollution Removal ($/yr)",
+         EnerSav_USDyr = "Energy Savings ($/yr)",
+         TotYrBene_USDyr = "Total Annual Benefits ($/yr)",
+         PotET_galyr = "Potential Evapotranspiration (gal/yr)",
+         Evap_galyr = "Evaporation (gal/yr)",
+         Transp_galyr = "Transpiration (gal/yr)",
+         h2ointer_galyr = "Water Intercepted (gal/yr)",
+         COremv_ozyr = "CO Removed (oz/yr)",
+         COremv_USDyr = "CO Removed ($/yr)",
+         O3remv_ozyr = "O3 Removed (oz/yr)",
+         O3remv_USDyr = "O3 Removed ($/yr)",
+         NO2remv_ozyr = "NO2 Removed (oz/yr)",
+         NO2remv_USDyr = "NO2 Removed ($/yr)",
+         SO2remv_ozyr = "SO2 Removed (oz/yr)",
+         SO2remv_USDyr = "SO2 Removed ($/yr)",
+         PM10remv_ozyr = "PM10* Removed (oz/yr)",
+         PM10remv_USDyr = "PM10* Removed ($/yr)",
+         PM2.5remv_ozyr = "PM2.5 Removed (oz/yr)",
+         PM2.5remv_USDyr = "PM2.5 Removed ($/yr)",
+         Treehght_ft = "Height (ft)",
+         TreeCrnhght_ft = "Crown Height (ft)",
+         TreeCrnwdth_ft = "Crown Width (ft)",
+         TreeCanCov_ft2 = "Canopy Cover (ft^2)",
+         TreeCondition = "Tree Condition",
+         LeafArea_ft2 = "Leaf Area (ft^2)",
+         LeafBiom_lbs = "Leaf Biomass (lb)",
+         LeafAreaIndex = "Leaf Area Index",
+         BasalArea_ft2 = "Basal Area (ft^2)",
+         Street_tree = "Street Tree",
+         NativeToState = "Native to State",
+         PrivTree = "Private Tree\r\n" ) |>
+  mutate(itreeplotID = paste0(SectorID, str_pad(PlotNum, width = 4, 
+                                                side = 'left', pad = '0') )) |>
+  select(SectorID, PlotNum, TreeNum, itreeplotID, itree_treeID, everything())
+```
+
+
+```{r}
+# save organized i-Tree data to file for joining with bird data
+saveRDS(object = allitreebenefits_df, 
+        file = "../data/itree/itree_benefits_data_organized.RDS")
+```
+
+<br>  
+
+# Sourced functions written to read in i-Tree data  
+
+
+Here is the code from the functions used to help easy reading in the i-Tree data exported from the i-Tree ECO software.  
+
+`itree_readcsv()` is used to read in the individual .csv files exported from each i-Tree ECO report file for a particular type of i-Tree data (e.g., benefits, hydrology, individual trees in plots, ...).  
+
+```{r}
+itree_readcsv
+```
+
+
+`itree_sector_combine()` is used to combine the data read in for each sector into a single data frame that includes all sectors. The individual sector data frames come from the i-Tree ECO .csv exports that are imported to R via the `itree_readcsv()` function noted above.  
+
+```{r}
+itree_sector_combine
+```
+

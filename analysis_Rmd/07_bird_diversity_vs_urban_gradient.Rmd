@@ -1,0 +1,409 @@
+---
+title: "Multispecies Occupancy Modeling"
+author: "Matt Fuller"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+library(sf)
+library(terra)
+library(tidyverse)
+library(ggfortify)
+library(ggrepel)
+library(readxl)
+library(kableExtra)
+library(flextable)
+library(leaflet)
+library(htmltools)
+library(viridis)
+library(DT)
+
+
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '')
+knitr::opts_current$get('Table')
+```
+
+
+<br>   
+
+# Read in Data  
+
+
+## Urban-suburban gradient data  
+
+```{r}
+urban_grdt_pca_dims <- readRDS(file = "../data/RDS/urban_gradient_pca_dims.RDS")
+
+urban_grdt_lulc_prop_grouped <- 
+  readRDS(file = "../data/RDS/site050m_zonal_stats_groupedcategories_df.RDS") |>
+  rename(SiteID = "ID")
+
+urban_grdt_lulc_prop_ungrouped <- 
+  readRDS(file = "../data/RDS/site050m_zonal_stats_ungroupedcategories_df.RDS") |>
+  rename(SiteID = "ID")
+
+urban_grdt_rankbased <- readRDS(file = "../data/RDS/rankbased_urbangrdt_df.RDS")
+```
+
+
+## Bird diversity data  
+
+
+```{r message=FALSE}
+birditree_sitejoin_key <- readRDS(file = "../data/iTree_Bird_site_key.RDS")
+
+# bird diversity by site
+site_based_divind <- 
+  readRDS(file = "../data/RDS/iNEXT_site_based_diversity.RDS") |>
+  rename(SiteID = "Assemblage") |>
+  pivot_longer(cols = c("Observed","Estimator"), names_to = "Statistic", values_to = "value") |>
+  left_join(birditree_sitejoin_key, by = "SiteID") |>  
+  filter(!is.na(PlotNum)) |>
+  left_join(urban_grdt_pca_dims, by = "SiteID")|>
+  left_join(urban_grdt_lulc_prop_ungrouped, by = "SiteID") |>
+  left_join(urban_grdt_lulc_prop_grouped, by = "SiteID") |>
+  left_join(urban_grdt_rankbased, by = "SiteID")
+
+site_based_divind_wide <- site_based_divind |>
+  mutate(Diversity = factor(Diversity,
+                            levels = c("Shannon diversity","Simpson diversity","Species richness"),
+                            labels = c("shannon","simpson","spprich")),
+         Statistic = factor(Statistic,
+                            levels = c("Observed","Estimator"),
+                            labels = c("obs","est"))) |>
+  pivot_wider(id_cols = SiteID, names_from = c(Diversity, Statistic), 
+              values_from = value) |>
+  left_join(birditree_sitejoin_key, by = "SiteID") |>  
+  left_join(urban_grdt_pca_dims, by = "SiteID")|>
+  left_join(urban_grdt_lulc_prop_ungrouped, by = "SiteID") |>
+  left_join(urban_grdt_lulc_prop_grouped, by = "SiteID") |>
+  left_join(urban_grdt_rankbased, by = "SiteID")
+```
+
+
+
+# Bird Diversity along urban-suburban gradient  
+
+```{r gradient base ggplot}
+ggbaseplot <- 
+  ggplot(data = site_based_divind,
+         aes(y = value, color = Statistic, shape = Statistic)) +
+  theme_bw() +
+  labs(y = "Diversity index value") +
+  facet_wrap(~ Diversity, nrow = 3, scales = "free_y")
+```
+
+
+## PCA dimension 1  
+
+```{r fig.height=7.5, fig.width = 6.5, message = FALSE, warning = FALSE}
+site_based_divind |>
+  ggplot(aes(x = Dim.1, y = value, color = Statistic, shape = Statistic)) +
+  geom_smooth(method = "lm") +
+  # geom_abline() +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = c("red", "black")) +
+  scale_shape_manual(values = c(12,19)) +
+  labs(y = "Diversity index value", x = "PCA Dimension 1",
+       title = "") +
+  facet_wrap(~ Diversity, nrow = 3, scales = "free_y")
+
+ggsave(plot = last_plot(), width = 6.5, height = 7.5, dpi = 600, units = "in",
+       filename = "../figs/PCA1_vs_diversity_metrics_linearregressions.png")
+```
+
+
+
+## Proportion developed (combined residential and non-residential)
+
+```{r fig.height=7.5, fig.width = 6.5, message = FALSE, warning = FALSE}
+site_based_divind |>
+  ggplot(aes(x = Develop, y = value, color = Statistic, shape = Statistic)) +
+  geom_smooth(method = "lm") +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = c("red", "black")) +
+  scale_shape_manual(values = c(12,19)) +
+  labs(y = "Diversity index value") +
+  facet_wrap(~ Diversity, nrow = 3, scales = "free_y")
+```
+
+
+## Proportion trees (combined residential and non-residential)
+
+```{r fig.height=7.5, fig.width = 6.5, message = FALSE, warning = FALSE}
+site_based_divind |>
+  ggplot(aes(x = Tree, y = value, color = Statistic, shape = Statistic)) +
+  geom_smooth(method = "lm") +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = c("red", "black")) +
+  scale_shape_manual(values = c(12,19)) +
+  labs(y = "Diversity index value") +
+  facet_wrap(~ Diversity, nrow = 3, scales = "free_y")
+```
+
+
+
+## Proportion grass (combined residential and non-residential)
+
+```{r fig.height=7.5, fig.width = 6.5, message = FALSE, warning = FALSE}
+site_based_divind |>
+  ggplot(aes(x = Grass, y = value, color = Statistic, shape = Statistic)) +
+  geom_smooth(method = "lm") +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = c("red", "black")) +
+  scale_shape_manual(values = c(12,19)) +
+  labs(y = "Diversity index value") +
+  facet_wrap(~ Diversity, nrow = 3, scales = "free_y")
+```
+
+
+
+## Rank-based gradient: equal weights  
+
+Regression lines are shown below, but a more appropriate statistical test for the rank-based gradient would be a non-parametric test like the Spearman's correlation analysis.  
+
+
+```{r warning = FALSE}
+spearman_rank_shan_obs <- 
+  cor.test(x = site_based_divind_wide$rank_wght_25252525, 
+           y = site_based_divind_wide$shannon_obs, 
+           method = "spearman") 
+spearman_rank_shan_est <- 
+  cor.test(x = site_based_divind_wide$rank_wght_25252525, 
+           y = site_based_divind_wide$shannon_est, 
+           method = "spearman") 
+spearman_rank_simp_obs <- 
+  cor.test(x = site_based_divind_wide$rank_wght_25252525, 
+           y = site_based_divind_wide$simpson_obs, 
+           method = "spearman") 
+spearman_rank_simp_est <- 
+  cor.test(x = site_based_divind_wide$rank_wght_25252525, 
+           y = site_based_divind_wide$simpson_est, 
+           method = "spearman") 
+spearman_rank_rich_obs <- 
+  cor.test(x = site_based_divind_wide$rank_wght_25252525, 
+           y = site_based_divind_wide$spprich_obs, 
+           method = "spearman") 
+spearman_rank_rich_est <- 
+  cor.test(x = site_based_divind_wide$rank_wght_25252525, 
+           y = site_based_divind_wide$spprich_est, 
+           method = "spearman") 
+
+spearman_rank_table <- 
+  data.frame(div_index = rep(c("Shannon","Simpson","Species richness"), each = 2),
+             div_stat = rep(c("Observed","Estimate"), times = 3),
+             spearman_rho = c(spearman_rank_shan_obs$estimate,spearman_rank_shan_est$estimate,
+                               spearman_rank_simp_obs$estimate,spearman_rank_simp_est$estimate,
+                               spearman_rank_rich_obs$estimate,spearman_rank_rich_est$estimate),
+             spearman_pval = c(spearman_rank_shan_obs$p.value,spearman_rank_shan_est$p.value,
+                               spearman_rank_simp_obs$p.value,spearman_rank_simp_est$p.value,
+                               spearman_rank_rich_obs$p.value,spearman_rank_rich_est$p.value)) |>
+  mutate(spearman_rho = round(spearman_rho, 3),
+         spearman_pval = if_else(spearman_pval < 0.0001, "<0.0001",
+                                              as.character(round(spearman_pval,4))) )
+
+DT::datatable(data = mutate(spearman_rank_table, across(where(is.numeric), ~round(.x,4)) ),
+              rownames = FALSE, 
+              colnames = c("Diversity Index" = "div_index","Observed/Estimate" = "div_stat",
+                           "Spearman's rho" = "spearman_rho","Spearman's p-value" = "spearman_pval"),
+              caption = "Table 1. Spearman rank non-parametric correlation test estimate (rho) and  p-values for each diversity index/statistic using the rankbased urban-suburban gradient. P-values of 0 represent a p-value << 0.0001.")
+```
+
+
+```{r fig.height=7.5, fig.width = 6.5, message = FALSE, warning = FALSE}
+site_based_divind |>
+  ggplot(aes(x = rank_wght_25252525, y = value, color = Statistic, shape = Statistic)) +
+  geom_smooth(method = "lm") +
+  geom_point() +
+  theme_bw() +
+  scale_color_manual(values = c("red", "black")) +
+  scale_shape_manual(values = c(12,19)) +
+  labs(y = "Diversity index value") +
+  facet_wrap(~ Diversity, nrow = 3, scales = "free_y")
+```
+
+
+
+
+# Statistical tests
+
+## Linear regression fits  
+
+Fit all the models to each diversity index (Shannon, Simpson, Species Richness) and statistic (observed or estimated value).  
+
+```{r}
+lm_coef_pval_extract_fnx <- function(fitted_lm_model) {
+  obj <- summary(fitted_lm_model)$coefficients[2,c(1,4)]
+  response_var <- rownames(attr(terms(fitted_lm_model), "factors"))[1]
+  grdt <- rownames(attr(terms(fitted_lm_model), "factors"))[2]
+  df <- data.frame(response_var = response_var,
+                   Gradient = grdt,
+                   Coefficient = as.numeric(obj[1]),
+                   p_value = as.numeric(obj[2]) )  
+  return(df)
+}
+```
+
+
+```{r}
+lmfit_dim1 <- lm(shannon_obs ~ Dim.1, data = site_based_divind_wide) 
+lmfit_devel <- lm(shannon_obs ~ Develop, data = site_based_divind_wide)
+lmfit_tree <- lm(shannon_obs ~ Tree, data = site_based_divind_wide)
+lmfit_grass <- lm(shannon_obs ~ Grass, data = site_based_divind_wide)
+lmfit_rank <- lm(shannon_obs ~ rank_wght_25252525, data = site_based_divind_wide) 
+shan_obs_lm_coefpval <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = lm_coef_pval_extract_fnx) |> reduce(.f = bind_rows)
+shan_obs_lm_AIC <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = AIC) |> 
+  enframe() |> unnest(cols = c(value)) |> 
+  rename(shan_obs_AIC = "value")
+
+lmfit_dim1 <- lm(shannon_est ~ Dim.1, data = site_based_divind_wide) 
+lmfit_devel <- lm(shannon_est ~ Develop, data = site_based_divind_wide)
+lmfit_tree <- lm(shannon_est ~ Tree, data = site_based_divind_wide)
+lmfit_grass <- lm(shannon_est ~ Grass, data = site_based_divind_wide)
+lmfit_rank <- lm(shannon_est ~ rank_wght_25252525, data = site_based_divind_wide) 
+shan_est_lm_coefpval <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = lm_coef_pval_extract_fnx) |> reduce(.f = bind_rows)
+shan_est_lm_AIC <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+       FUN = AIC) |> 
+  enframe() |> unnest(cols = c(value)) |> 
+  rename(shan_est_AIC = "value")
+
+
+lmfit_dim1 <- lm(simpson_obs ~ Dim.1, data = site_based_divind_wide) 
+lmfit_devel <- lm(simpson_obs ~ Develop, data = site_based_divind_wide)
+lmfit_tree <- lm(simpson_obs ~ Tree, data = site_based_divind_wide)
+lmfit_grass <- lm(simpson_obs ~ Grass, data = site_based_divind_wide)
+lmfit_rank <- lm(simpson_obs ~ rank_wght_25252525, data = site_based_divind_wide) 
+simp_obs_lm_coefpval <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = lm_coef_pval_extract_fnx) |> reduce(.f = bind_rows)
+simp_obs_lm_AIC <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+       FUN = AIC) |> 
+  enframe() |> unnest(cols = c(value)) |> 
+  rename(simp_obs_AIC = "value")
+
+lmfit_dim1 <- lm(simpson_est ~ Dim.1, data = site_based_divind_wide) 
+lmfit_devel <- lm(simpson_est ~ Develop, data = site_based_divind_wide)
+lmfit_tree <- lm(simpson_est ~ Tree, data = site_based_divind_wide)
+lmfit_grass <- lm(simpson_est ~ Grass, data = site_based_divind_wide)
+lmfit_rank <- lm(simpson_est ~ rank_wght_25252525, data = site_based_divind_wide) 
+simp_est_lm_coefpval <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = lm_coef_pval_extract_fnx) |> reduce(.f = bind_rows)
+simp_est_lm_AIC <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+       FUN = AIC) |> 
+  enframe() |> unnest(cols = c(value)) |> 
+  rename(simp_est_AIC = "value") 
+
+
+
+
+lmfit_dim1 <- lm(spprich_obs ~ Dim.1, data = site_based_divind_wide) 
+lmfit_devel <- lm(spprich_obs ~ Develop, data = site_based_divind_wide)
+lmfit_tree <- lm(spprich_obs ~ Tree, data = site_based_divind_wide)
+lmfit_grass <- lm(spprich_obs ~ Grass, data = site_based_divind_wide)
+lmfit_rank <- lm(spprich_obs ~ rank_wght_25252525, data = site_based_divind_wide) 
+rich_obs_lm_coefpval <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = lm_coef_pval_extract_fnx) |> reduce(.f = bind_rows)
+rich_obs_lm_AIC <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+       FUN = AIC) |> 
+  enframe() |> unnest(cols = c(value)) |> 
+  rename(rich_obs_AIC = "value")
+
+
+lmfit_dim1 <- lm(spprich_est ~ Dim.1, data = site_based_divind_wide) 
+lmfit_devel <- lm(spprich_est ~ Develop, data = site_based_divind_wide)
+lmfit_tree <- lm(spprich_est ~ Tree, data = site_based_divind_wide)
+lmfit_grass <- lm(spprich_est ~ Grass, data = site_based_divind_wide)
+lmfit_rank <- lm(spprich_est ~ rank_wght_25252525, data = site_based_divind_wide) 
+rich_est_lm_coefpval <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+         FUN = lm_coef_pval_extract_fnx) |> reduce(.f = bind_rows)
+rich_est_lm_AIC <- 
+  lapply(X = list(PCA_dim1 = lmfit_dim1, Developed = lmfit_devel, 
+                  Grass = lmfit_grass, Tree = lmfit_tree, Rank = lmfit_rank),
+       FUN = AIC) |> 
+  enframe() |> unnest(cols = c(value)) |> 
+  rename(rich_est_AIC = "value") 
+```
+
+Extract coefficients and p-values for each model.   
+
+```{r}
+lm_fits_output_df <- bind_rows(shan_obs_lm_coefpval, shan_est_lm_coefpval, 
+                               simp_obs_lm_coefpval, simp_est_lm_coefpval,
+                               rich_obs_lm_coefpval, rich_est_lm_coefpval) |>
+  mutate(Gradient = factor(Gradient, 
+                           levels = c("Dim.1", "Develop","Tree","Grass","rank_wght_25252525"),
+                           labels = c("PCA Dim1", "Developed","Tree","Grass","Rank")),
+         Coefficient = round(Coefficient, 2),
+         p_value = round(p_value,4)) |>
+  mutate(p_value = if_else(p_value == 0, "<0.0001", as.character(p_value))) |>
+  separate_wider_delim(cols = response_var, delim = "_", 
+                       names = c("Diversity Index","Statistic"))
+
+DT::datatable(data = lm_fits_output_df,
+                rownames = FALSE, 
+                caption = "Table 2. Simple linear model coefficients and p-values for each diversity index/statistic using various urban-suburban gradients as predictors.")
+```
+
+
+
+## Model (gradient type) comparison  
+
+Using AIC each gradient as a simple linear model can be compared to determine which best fits the data. The lower the AIC value the better the model fits the data. AIC values more then 2 units different are generally considered to indicate a significant difference in model fit.  
+
+
+```{r message=FALSE}
+lm_model_comparison_df <- 
+  bind_cols(shan_obs_lm_AIC, shan_est_lm_AIC,
+            simp_obs_lm_AIC, simp_est_lm_AIC, 
+            rich_obs_lm_AIC, rich_est_lm_AIC) |> data.frame() |> 
+  rename(Grdnt_predictor = "name...1") |> select(-starts_with("name...")) |>
+  mutate(across(where(is.numeric), ~ round(.x, 1) ) )
+
+DT::datatable(data = lm_model_comparison_df,
+                rownames = FALSE, 
+                caption = "Table 3. Simple linear model fit comparison using AIC. Different diversity statistics were predicted using various urban-suburban gradients.")
+
+```
+
+
+These results indicate that the rank-based urban gradient does the best job predicting species diversity among the 60 sites (lowest AIC value for all three diversity indices and for both observed and estimated values of each index. The PCA's first dimension was the second best for Shannon and Simpson Indices (both observed and estimated values), but Grass proportion was the second best predictor of species richness (for boht observed and estimated values, while PCA Dimension 1 fell to third.  
+
+For what its worth, all five of these gradients provided significant linear regression models overall for each diversity index and statistic (observed vs estimated values). The only exception was Tree predicting estimated species richness with a p-value of 0.06, so even that is moderately significant if you want to hold firm on the 0.05 alpha level. AIC provides an additional measure of comparison among models that indicates the rank gradient performs best when predicting our diversity indices, but as we discussed in our call, the PCA is still the most justified method that reviewers will recognize and not be as likely to question.  
+
+
+

@@ -17,6 +17,7 @@ book:
   date: today
   chapters:
     - index.qmd
+    - SD00datacleaning.qmd
 
 format:
   html:
